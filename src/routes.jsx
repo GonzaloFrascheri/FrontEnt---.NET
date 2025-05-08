@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
 import RegisterTenantPage from './pages/RegisterTenantPage';
+import RegisterStationPage from './pages/RegisterStationPage';
 
 import { AuthProvider } from './context/AuthProvider';
 import { AuthContext } from './context/AuthContext';
@@ -38,6 +39,14 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute>
               <RegisterTenantPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stations/nuevo"
+          element={
+            <ProtectedRoute>
+              <RegisterStationPage/>
             </ProtectedRoute>
           }
         />

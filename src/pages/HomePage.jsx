@@ -20,7 +20,7 @@ export default function HomePage() {
         <Link to="/tenants/nuevo" className="auth-card__button">
           Alta de Producto
         </Link>
-        <Link to="/tenants/nuevo" className="auth-card__button">
+        <Link to="/stations/nuevo" className="auth-card__button">
           Alta de Estación
         </Link>
         <Link to="/tenants/nuevo" className="auth-card__button">
