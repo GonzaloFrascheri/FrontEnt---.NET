@@ -1,0 +1,54 @@
+import { useState } from 'react';
+
+import googleLogo from '../assets/Google.png';
+
+export default function AuthForm({ onSubmit, googleLogin }) {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+  
+    const handleSubmit = e => {
+      e.preventDefault();
+      onSubmit({ email, password });
+    };
+  
+    return (
+      <div className="auth-card">
+        <h2 className="auth-card__title">Login</h2>
+        <form onSubmit={handleSubmit} className="auth-card__form">
+          <label className="auth-card__label">
+            Email
+            <input
+              type="email"
+              className="auth-card__input"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+            />
+          </label>
+          <label className="auth-card__label">
+            Contraseña
+            <input
+              type="password"
+              className="auth-card__input"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+            />
+          </label>
+          <button type="submit" className="auth-card__button">
+            Ingresar
+          </button>
+        </form>
+        <div className="auth-card__divider">o</div>
+        <button onClick={googleLogin} className="auth-card__button auth-card__button--google">
+          <img
+            src={googleLogo}
+            alt="Google logo"
+            className="auth-card__google-icon"
+          />
+          Iniciar con Google
+        </button>
+      </div>
+    );
+  }
+  
