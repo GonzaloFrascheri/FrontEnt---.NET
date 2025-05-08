@@ -23,7 +23,7 @@ export default function HomePage() {
         <Link to="/stations/nuevo" className="auth-card__button">
           Alta de Estación
         </Link>
-        <Link to="/tenants/nuevo" className="auth-card__button">
+        <Link to="/verify" className="auth-card__button">
           Verificación de edad e identidad
         </Link>
         <Link to="/redeem" className="auth-card__button">

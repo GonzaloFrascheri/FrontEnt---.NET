@@ -88,4 +88,14 @@ export async function redeemProduct({ productId }) {
   return response.data;
 }
 
+/**
+ * Verifica la identidad y edad del usuario.
+ * @param {{ nombre: string, documento: string, fechaNacimiento: string }} data
+ * @returns {Promise<Object>}
+ */
+export async function verifyIdentity(data) {
+  const response = await api.post('/verify-identity', data);
+  return response.data;
+}
+
 export default api;

@@ -13,6 +13,7 @@ import { AuthContext } from './context/AuthContext';
 import RegisterProductPage from './pages/products/RegisterProductPage';
 import UpdateFuelPricePage from './pages/fuel/UpdateFuelPricePage';
 import RedeemPointsPage from './pages/points/RedeemPointsPage';
+import VerifyIdentityPage from './pages/verifyAge/VerifyIdentityPage';
 
 // Componente para rutas protegidas
 function ProtectedRoute({ children }) {
@@ -76,6 +77,13 @@ export default function AppRoutes() {
               <RedeemPointsPage />
             </ProtectedRoute>
           }
+        />
+        <Route
+          path="/verify"
+          element={
+            <ProtectedRoute>
+              <VerifyIdentityPage />
+            </ProtectedRoute>}
         />
         {/* Comodín: redirige al login */}
         <Route path="*" element={<Navigate to="/login" replace />} />
