@@ -11,6 +11,8 @@ import RegisterStationPage from './pages/stations/RegisterStationPage';
 import { AuthProvider } from './context/AuthProvider';
 import { AuthContext } from './context/AuthContext';
 import RegisterProductPage from './pages/products/RegisterProductPage';
+import UpdateFuelPricePage from './pages/fuel/UpdateFuelPricePage';
+import RedeemPointsPage from './pages/points/RedeemPointsPage';
 
 // Componente para rutas protegidas
 function ProtectedRoute({ children }) {
@@ -56,6 +58,22 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute>
               <RegisterProductPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/fuels/actualizar"
+          element={
+            <ProtectedRoute>
+              <UpdateFuelPricePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/redeem"
+          element={
+            <ProtectedRoute>
+              <RedeemPointsPage />
             </ProtectedRoute>
           }
         />

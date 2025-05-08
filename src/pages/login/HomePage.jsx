@@ -26,10 +26,10 @@ export default function HomePage() {
         <Link to="/tenants/nuevo" className="auth-card__button">
           Verificación de edad e identidad
         </Link>
-        <Link to="/tenants/nuevo" className="auth-card__button">
+        <Link to="/redeem" className="auth-card__button">
           Canje de puntos
         </Link>
-        <Link to="/tenants/nuevo" className="auth-card__button">
+        <Link to="/fuels/actualizar" className="auth-card__button">
           Actualización precio del combustible
         </Link>
         {/* Aquí puedes agregar más enlaces de administración */}

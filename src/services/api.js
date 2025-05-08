@@ -59,4 +59,33 @@ export async function createProduct({ tenantId, nombre, precio, requiereVEAI }) 
   return response.data;
 }
 
+/**
+ * Actualiza el precio de un combustible para todas las estaciones.
+ * @param {{ productId: string, nuevoPrecio: number }} data
+ * @returns {Promise<Object>} datos del combustible actualizado
+ */
+export async function updateFuelPrice({ productId, nuevoPrecio }) {
+  const response = await api.put(`/fuels/${productId}/price`, { precio: nuevoPrecio });
+  return response.data;
+}
+
+/**
+ * Obtiene el catálogo de productos para canje de puntos.
+ * @returns {Promise<Array>} lista de productos con campos id, nombre, costoPuntos, edadMinima
+ */
+export async function getCatalog() {
+  const response = await api.get('/catalog'); // ajusta la ruta según tu API
+  return response.data;
+}
+
+/**
+ * Canjea puntos por un producto.
+ * @param {{ productId: string }} data
+ * @returns {Promise<Object>}
+ */
+export async function redeemProduct({ productId }) {
+  const response = await api.post('/redeem', { productId });
+  return response.data;
+}
+
 export default api;
