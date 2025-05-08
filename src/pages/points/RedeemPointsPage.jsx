@@ -1,3 +1,4 @@
+// src/pages/points/RedeemPointsPage.jsx
 import { useState, useEffect, useContext } from 'react';
 import { getCatalog, redeemProduct } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
@@ -11,7 +12,6 @@ export default function RedeemPointsPage() {
   const [selectedId, setSelectedId] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [userPoints, setUserPoints] = useState(0);
-  const [nuevoPrecio, setNuevoPrecio] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -56,7 +56,7 @@ export default function RedeemPointsPage() {
     setSuccess('');
     try {
       await redeemProduct({ productId: selectedProduct.id });
-      setSuccess(`Has canjeado ${selectedProduct.nombre}.`);
+      setSuccess(`Has canjeado "${selectedProduct.nombre}".`);
       setUserPoints(prev => prev - selectedProduct.costoPuntos);
       setTimeout(() => navigate('/'), 1500);
     } catch (err) {
@@ -67,45 +67,73 @@ export default function RedeemPointsPage() {
   };
 
   return (
-    <div className="auth-card">
-      <h2 className="auth-card__title">Canje de Puntos</h2>
-      <p>Tienes <strong>{userPoints}</strong> puntos disponibles.</p>
+    <div className="d-flex justify-content-center align-items-center py-5">
+      <div className="card" style={{ maxWidth: 400, width: '100%' }}>
+        <div className="card-body">
+          <h4 className="card-title text-center mb-4">Canje de Puntos</h4>
+          <p className="text-center mb-3">
+            Tienes <strong>{userPoints}</strong> puntos disponibles.
+          </p>
 
-      <form onSubmit={handleSubmit} className="auth-card__form">
-        {error && <p className="auth-card__error">{error}</p>}
-        {success && <p className="auth-card__info">{success}</p>}
+          {error && (
+            <div className="alert alert-danger" role="alert">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="alert alert-success" role="alert">
+              {success}
+            </div>
+          )}
 
-        <select
-          value={selectedId}
-          onChange={handleSelect}
-          disabled={loading}
-          className="auth-card__input"
-          required
-        >
-          <option value="">Selecciona un producto</option>
-          {catalog.map(item => (
-            <option key={item.id} value={item.id}>
-              {item.nombre} - {item.costoPuntos} pts
-            </option>
-          ))}
-        </select>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label htmlFor="selectProduct" className="form-label">
+                Selecciona un producto
+              </label>
+              <select
+                id="selectProduct"
+                className="form-select"
+                value={selectedId}
+                onChange={handleSelect}
+                disabled={loading}
+                required
+              >
+                <option value="">-- elige uno --</option>
+                {catalog.map(item => (
+                  <option key={item.id} value={item.id}>
+                    {item.nombre} — {item.costoPuntos} pts
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        {selectedProduct && (
-          <p>Edad mínima: {selectedProduct.edadMinima}</p>
-        )}
+            {selectedProduct && (
+              <p className="mb-3">
+                <small className="text-muted">
+                  Edad mínima: {selectedProduct.edadMinima}
+                </small>
+              </p>
+            )}
 
-        <button
-          type="submit"
-          className="auth-card__button"
-          disabled={loading}
-        >
-          {loading ? 'Procesando…' : 'Confirmar canje'}
-        </button>
-      </form>
+            <div className="d-grid mb-3">
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={loading}
+              >
+                {loading ? 'Procesando…' : 'Confirmar canje'}
+              </button>
+            </div>
+          </form>
 
-      <Link to="/" className='back-link' style={{ marginTop: '1rem' }}>
-        Volver al menú
-      </Link>
+          <div className="text-center">
+            <Link to="/" className="link-secondary">
+              Volver al menú
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

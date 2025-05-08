@@ -1,10 +1,20 @@
-import { useState, useContext, useEffect } from 'react';
+// src/pages/stations/RegisterStationPage.jsx
+import React, { useState, useEffect, useContext } from 'react';
 import { createStation } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
+import {
+  Container,
+  Col,
+  Card,
+  Form,
+  Button,
+  Alert,
+  Row
+} from 'react-bootstrap';
 
 export default function RegisterStationPage() {
-  const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const [tenants, setTenants] = useState([]);
   const [form, setForm] = useState({
     tenantId: '',
@@ -17,10 +27,12 @@ export default function RegisterStationPage() {
   const [error, setError]     = useState('');
   const [success, setSuccess] = useState('');
 
-  // TODO: en el futuro, cargar tenants desde tu API:
   useEffect(() => {
-    // hasta then, un mock
-    setTenants([{ id: 't1', nombre: 'Cadena A' }, { id: 't2', nombre: 'Cadena B' }]);
+    // TODO: reemplazar con fetch real de tenants
+    setTenants([
+      { id: 't1', nombre: 'Cadena A' },
+      { id: 't2', nombre: 'Cadena B' }
+    ]);
   }, []);
 
   const handleChange = e => {
@@ -30,12 +42,22 @@ export default function RegisterStationPage() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    setError(''); setSuccess(''); setLoading(true);
+    setError('');
+    setSuccess('');
+    setLoading(true);
     try {
-      const serviciosArray = form.servicios.split(',').map(s => s.trim());
-      const station = await createStation({ ...form, servicios: serviciosArray });
-      setSuccess(`Estación "${station.nombre}" creada.`);
-      setForm(prev => ({ ...prev, nombre:'', direccion:'', servicios:'' }));
+      const serviciosArray = form.servicios
+        ? form.servicios.split(',').map(s => s.trim())
+        : [];
+      const station = await createStation({
+        tenantId: form.tenantId,
+        nombre: form.nombre,
+        direccion: form.direccion,
+        estado: form.estado,
+        servicios: serviciosArray
+      });
+      setSuccess(`Estación "${station.nombre}" creada con éxito.`);
+      setForm({ ...form, nombre: '', direccion: '', servicios: '' });
     } catch (err) {
       setError(err.response?.data?.message || 'Error al crear estación');
     } finally {
@@ -44,81 +66,102 @@ export default function RegisterStationPage() {
   };
 
   return (
-    <div className="auth-card">
-      <h2 className="auth-card__title">Alta de Estación</h2>
+    <Container className="d-flex justify-content-center align-items-center py-5">
+      <Col xs={12} sm={10} md={8} lg={6}>
+        <Card className="shadow-sm">
+          <Card.Body>
+            <Card.Title className="text-center mb-4">
+              Alta de Estación
+            </Card.Title>
 
-      <form onSubmit={handleSubmit} className="auth-card__form">
-        {error   && <p className="auth-card__error">{error}</p>}
-        {success && <p className="auth-card__info">{success}</p>}
+            {error && <Alert variant="danger">{error}</Alert>}
+            {success && <Alert variant="success">{success}</Alert>}
 
-        <select
-          name="tenantId"
-          value={form.tenantId}
-          onChange={handleChange}
-          disabled={loading}
-          required
-          className="auth-card__input"
-        >
-          <option value="">Selecciona un tenant</option>
-          {tenants.map(t => (
-            <option key={t.id} value={t.id}>{t.nombre}</option>
-          ))}
-        </select>
+            <Form onSubmit={handleSubmit}>
+              <Form.Group className="mb-3" controlId="selectTenant">
+                <Form.Label>Selecciona un tenant</Form.Label>
+                <Form.Select
+                  name="tenantId"
+                  value={form.tenantId}
+                  onChange={handleChange}
+                  disabled={loading}
+                  required
+                >
+                  <option value="">-- elige uno --</option>
+                  {tenants.map(t => (
+                    <option key={t.id} value={t.id}>
+                      {t.nombre}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
 
-        <input
-          type="text"
-          name="nombre"
-          placeholder="Nombre de la estación"
-          className="auth-card__input"
-          value={form.nombre}
-          onChange={handleChange}
-          disabled={loading}
-          required
-        />
+              <Form.Group className="mb-3" controlId="inputNombre">
+                <Form.Label>Nombre de la estación</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="nombre"
+                  placeholder="Ej: Estación Central"
+                  value={form.nombre}
+                  onChange={handleChange}
+                  disabled={loading}
+                  required
+                />
+              </Form.Group>
 
-        <input
-          type="text"
-          name="direccion"
-          placeholder="Dirección"
-          className="auth-card__input"
-          value={form.direccion}
-          onChange={handleChange}
-          disabled={loading}
-          required
-        />
+              <Form.Group className="mb-3" controlId="inputDireccion">
+                <Form.Label>Dirección</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="direccion"
+                  placeholder="Ej: Calle Falsa 123"
+                  value={form.direccion}
+                  onChange={handleChange}
+                  disabled={loading}
+                  required
+                />
+              </Form.Group>
 
-        <select
-          name="estado"
-          value={form.estado}
-          onChange={handleChange}
-          disabled={loading}
-          className="auth-card__input"
-        >
-          <option value="activo">Activo</option>
-          <option value="inactivo">Inactivo</option>
-        </select>
+              <Form.Group className="mb-3" controlId="selectEstado">
+                <Form.Label>Estado</Form.Label>
+                <Form.Select
+                  name="estado"
+                  value={form.estado}
+                  onChange={handleChange}
+                  disabled={loading}
+                >
+                  <option value="activo">Activo</option>
+                  <option value="inactivo">Inactivo</option>
+                </Form.Select>
+              </Form.Group>
 
-        <input
-          type="text"
-          name="servicios"
-          placeholder="Servicios (separados por coma)"
-          className="auth-card__input"
-          value={form.servicios}
-          onChange={handleChange}
-          disabled={loading}
-        />
+              <Form.Group className="mb-4" controlId="inputServicios">
+                <Form.Label>Servicios (separados por coma)</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="servicios"
+                  placeholder="Ej: tienda,lavado"
+                  value={form.servicios}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+              </Form.Group>
 
-        <button
-          type="submit"
-          className="auth-card__button"
-          disabled={loading}
-        >
-          {loading ? 'Creando…' : 'Crear Estación'}
-        </button>
-        <Link to="/" className='back-link' style={{ marginTop: '1rem' }}>
-          Volver al menú
-        </Link>
-      </form>
-    </div>
+              <div className="d-grid mb-3">
+                <Button variant="primary" type="submit" disabled={loading}>
+                  {loading ? 'Creando…' : 'Crear Estación'}
+                </Button>
+              </div>
+            </Form>
+
+            <div className="text-center">
+              <Link to="/" className="link-secondary">
+                Volver al menú
+              </Link>
+            </div>
+          </Card.Body>
+        </Card>
+      </Col>
+    </Container>
   );
 }

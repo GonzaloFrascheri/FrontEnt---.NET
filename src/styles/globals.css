@@ -1,3 +1,35 @@
+.app {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: url('../assets/estacion2.jpg')
+              center/cover no-repeat fixed;
+  overflow: hidden;
+}
+
+/* capa semi‐opaca oscureciendo la imagen */
+.app__overlay {
+  content: "";
+  position: absolute;
+  inset: 0; /* top:0; right:0; bottom:0; left:0 */
+  background-color: rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+
+/* el contenido (navbar, main, footer) va encima */
+.app > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* contenido principal bajo el navbar y sobre la overlay */
+.app__content {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
 /* Centro la “card” en la página */
 .auth-card {
     width: 320px;

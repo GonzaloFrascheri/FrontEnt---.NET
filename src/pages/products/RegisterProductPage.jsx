@@ -1,18 +1,33 @@
-import { useState, useEffect, useContext } from 'react';
+// src/pages/products/RegisterProductPage.jsx
+import React, { useState, useEffect, useContext } from 'react';
 import { createProduct } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
+import {
+  Container,
+  Col,
+  Card,
+  Form,
+  Button,
+  Alert,
+  Row
+} from 'react-bootstrap';
 
 export default function RegisterProductPage() {
   const { user } = useContext(AuthContext);
   const [tenants, setTenants] = useState([]);
-  const [form, setForm] = useState({ tenantId: '', nombre: '', precio: '', requiereVEAI: false });
+  const [form, setForm] = useState({
+    tenantId: '',
+    nombre: '',
+    precio: '',
+    requiereVEAI: false
+  });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError]   = useState('');
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    // TODO: Obtener la lista de tenants reales desde tu API
+    // TODO: obtener tenants reales desde tu API
     setTenants([
       { id: 't1', nombre: 'Cadena A' },
       { id: 't2', nombre: 'Cadena B' }
@@ -32,6 +47,7 @@ export default function RegisterProductPage() {
     setError('');
     setSuccess('');
     setLoading(true);
+
     try {
       const precioFloat = parseFloat(form.precio);
       if (isNaN(precioFloat)) throw new Error('Precio debe ser un número');
@@ -51,71 +67,88 @@ export default function RegisterProductPage() {
   };
 
   return (
-    <div className="auth-card">
-      <h2 className="auth-card__title">Alta de Producto</h2>
-      <form onSubmit={handleSubmit} className="auth-card__form">
-        {error && <p className="auth-card__error">{error}</p>}
-        {success && <p className="auth-card__info">{success}</p>}
+    <Container className="d-flex justify-content-center align-items-center py-5">
+      <Col xs={12} sm={10} md={8} lg={6}>
+        <Card className="shadow-sm">
+          <Card.Body>
+            <Card.Title className="text-center mb-4">
+              Alta de Producto
+            </Card.Title>
 
-        <select
-          name="tenantId"
-          value={form.tenantId}
-          onChange={handleChange}
-          disabled={loading}
-          required
-          className="auth-card__input"
-        >
-          <option value="">Selecciona un tenant</option>
-          {tenants.map(t => (
-            <option key={t.id} value={t.id}>{t.nombre}</option>
-          ))}
-        </select>
+            {error && <Alert variant="danger">{error}</Alert>}
+            {success && <Alert variant="success">{success}</Alert>}
 
-        <input
-          type="text"
-          name="nombre"
-          placeholder="Nombre del producto"
-          className="auth-card__input"
-          value={form.nombre}
-          onChange={handleChange}
-          disabled={loading}
-          required
-        />
+            <Form onSubmit={handleSubmit}>
+              <Form.Group className="mb-3" controlId="selectTenant">
+                <Form.Label>Selecciona un tenant</Form.Label>
+                <Form.Select
+                  name="tenantId"
+                  value={form.tenantId}
+                  onChange={handleChange}
+                  disabled={loading}
+                  required
+                >
+                  <option value="">-- elige uno --</option>
+                  {tenants.map(t => (
+                    <option key={t.id} value={t.id}>
+                      {t.nombre}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
 
-        <input
-          type="text"
-          name="precio"
-          placeholder="Precio"
-          className="auth-card__input"
-          value={form.precio}
-          onChange={handleChange}
-          disabled={loading}
-          required
-        />
+              <Form.Group className="mb-3" controlId="inputNombre">
+                <Form.Label>Nombre del producto</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="nombre"
+                  placeholder="Ej: Café Premium"
+                  value={form.nombre}
+                  onChange={handleChange}
+                  disabled={loading}
+                  required
+                />
+              </Form.Group>
 
-        <label className="auth-card__label-checkbox">
-          <input
-            type="checkbox"
-            name="requiereVEAI"
-            checked={form.requiereVEAI}
-            onChange={handleChange}
-            disabled={loading}
-          />
-          Requiere VEAI
-        </label>
+              <Form.Group className="mb-3" controlId="inputPrecio">
+                <Form.Label>Precio</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="precio"
+                  placeholder="Ej: 1.23"
+                  value={form.precio}
+                  onChange={handleChange}
+                  disabled={loading}
+                  required
+                />
+              </Form.Group>
 
-        <button
-          type="submit"
-          className="auth-card__button"
-          disabled={loading}
-        >
-          {loading ? 'Creando…' : 'Crear Producto'}
-        </button>
-      </form>
+              <Form.Group className="mb-4" controlId="checkboxVEAI">
+                <Form.Check
+                  type="checkbox"
+                  name="requiereVEAI"
+                  label="Requiere VEAI"
+                  checked={form.requiereVEAI}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+              </Form.Group>
 
-      <Link to="/" className='back-link' style={{ marginTop: '1rem' }}>
-        Volver al menú
-      </Link>
-    </div>
+              <div className="d-grid mb-3">
+                <Button variant="primary" type="submit" disabled={loading}>
+                  {loading ? 'Creando…' : 'Crear Producto'}
+                </Button>
+              </div>
+            </Form>
+
+            <div className="text-center">
+              <Link to="/" className="link-secondary">
+                Volver al menú
+              </Link>
+            </div>
+          </Card.Body>
+        </Card>
+      </Col>
+    </Container>
   );
 }

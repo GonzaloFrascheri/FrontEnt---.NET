@@ -1,17 +1,18 @@
-import { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { updateFuelPrice } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { Container, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 
 export default function UpdateFuelPricePage() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [fuels, setFuels]       = useState([]);
+  const [fuels, setFuels] = useState([]);
   const [selectedFuel, setSelectedFuel] = useState(null);
-  const [nuevoPrecio, setNuevoPrecio]   = useState('');
-  const [loading, setLoading]    = useState(false);
-  const [error, setError]        = useState('');
-  const [success, setSuccess]    = useState('');
+  const [nuevoPrecio, setNuevoPrecio] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     // TODO: cargar lista real de combustibles desde la API
@@ -23,7 +24,7 @@ export default function UpdateFuelPricePage() {
   }, []);
 
   const handleSelect = e => {
-    const fuel = fuels.find(f => f.id === e.target.value);
+    const fuel = fuels.find(f => f.id === e.target.value) || null;
     setSelectedFuel(fuel);
     setNuevoPrecio(fuel?.precio ?? '');
     setError(''); setSuccess('');
@@ -39,7 +40,6 @@ export default function UpdateFuelPricePage() {
     try {
       await updateFuelPrice({ productId: selectedFuel.id, nuevoPrecio: precioFloat });
       setSuccess(`Precio de ${selectedFuel.nombre} actualizado a ${precioFloat}`);
-      // opcional: navegar de vuelta tras unos segundos
       setTimeout(() => navigate('/'), 1500);
     } catch (err) {
       setError(err.response?.data?.message || 'Error al actualizar precio');
@@ -49,53 +49,63 @@ export default function UpdateFuelPricePage() {
   };
 
   return (
-    <div className="auth-card">
-      <h2 className="auth-card__title">Actualizar Precio de Combustible</h2>
-      <form onSubmit={handleSubmit} className="auth-card__form">
-        {error   && <p className="auth-card__error">{error}</p>}
-        {success && <p className="auth-card__info">{success}</p>}
+    <Container className="d-flex justify-content-center align-items-center py-5">
+      <Col xs={12} sm={10} md={8} lg={6}>
+        <Card className="shadow-sm">
+          <Card.Body>
+            <Card.Title className="text-center mb-4">
+              Actualizar Precio de Combustible
+            </Card.Title>
+            
+            {error && <Alert variant="danger">{error}</Alert>}
+            {success && <Alert variant="success">{success}</Alert>}
 
-        <select
-          value={selectedFuel?.id || ''}
-          onChange={handleSelect}
-          disabled={loading}
-          required
-          className="auth-card__input"
-        >
-          <option value="">Selecciona combustible</option>
-          {fuels.map(f => (
-            <option key={f.id} value={f.id}>
-              {f.nombre} (precio: {f.precio})
-            </option>
-          ))}
-        </select>
+            <Form onSubmit={handleSubmit}>
+              <Form.Group className="mb-3" controlId="selectFuel">
+                <Form.Label>Selecciona combustible</Form.Label>
+                <Form.Select
+                  value={selectedFuel?.id || ''}
+                  onChange={handleSelect}
+                  disabled={loading}
+                  required
+                >
+                  <option value="">-- elige uno --</option>
+                  {fuels.map(f => (
+                    <option key={f.id} value={f.id}>
+                      {f.nombre} (precio: {f.precio})
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
 
-        {selectedFuel && (
-          <>
-            <input
-              type="text"
-              placeholder="Nuevo precio"
-              className="auth-card__input"
-              value={nuevoPrecio}
-              onChange={e => setNuevoPrecio(e.target.value)}
-              disabled={loading}
-              required
-            />
-          </>
-        )}
+              {selectedFuel && (
+                <Form.Group className="mb-4" controlId="inputNuevoPrecio">
+                  <Form.Label>Nuevo precio</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={nuevoPrecio}
+                    onChange={e => setNuevoPrecio(e.target.value)}
+                    disabled={loading}
+                    required
+                  />
+                </Form.Group>
+              )}
 
-        <button
-          type="submit"
-          className="auth-card__button"
-          disabled={loading}
-        >
-          {loading ? 'Actualizando…' : 'Aceptar'}
-        </button>
-      </form>
+              <div className="d-grid mb-3">
+                <Button variant="primary" type="submit" disabled={loading}>
+                  {loading ? 'Actualizando…' : 'Aceptar'}
+                </Button>
+              </div>
+            </Form>
 
-      <Link to="/" className='back-link' style={{ marginTop: '1rem' }}>
-        Volver al menú
-      </Link>
-    </div>
+            <div className="text-center">
+              <Link to="/" className="link-secondary">
+                Volver al menú
+              </Link>
+            </div>
+          </Card.Body>
+        </Card>
+      </Col>
+    </Container>
   );
 }

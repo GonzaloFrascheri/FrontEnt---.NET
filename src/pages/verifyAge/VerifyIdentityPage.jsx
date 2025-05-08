@@ -1,12 +1,18 @@
-import { useState, useContext } from 'react';
+// src/pages/verifyAge/VerifyIdentityPage.jsx
+import React, { useState, useContext } from 'react';
 import { verifyIdentity } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 
 export default function VerifyIdentityPage() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [form, setForm] = useState({ nombre: user.nombre || '', documento: '', fechaNacimiento: '' });
+  const [form, setForm] = useState({
+    nombre: user.nombre || '',
+    documento: '',
+    fechaNacimiento: ''
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -18,9 +24,10 @@ export default function VerifyIdentityPage() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    setError(''); setSuccess(''); setLoading(true);
+    setError('');
+    setSuccess('');
+    setLoading(true);
     try {
-      // Llama al endpoint de verificación de identidad
       await verifyIdentity(form);
       setSuccess('Verificación exitosa. Ahora puedes canjear productos con restricción.');
       setTimeout(() => navigate('/'), 1500);
@@ -32,61 +39,82 @@ export default function VerifyIdentityPage() {
   };
 
   return (
-    <div className="auth-card">
-      <h2 className="auth-card__title">Verificación de Edad e Identidad</h2>
-      <p>Para acceder a productos con restricción de edad, debes verificar tu identidad:</p>
-      <form onSubmit={handleSubmit} className="auth-card__form">
-        {error   && <p className="auth-card__error">{error}</p>}
-        {success && <p className="auth-card__info">{success}</p>}
+    <Container className="d-flex justify-content-center align-items-center py-5">
+      <Col xs={12} sm={8} md={6} lg={5}>
+        <Card className="shadow-sm">
+          <Card.Body>
+            <Card.Title className="text-center mb-4">
+              Verificación de Edad e Identidad
+            </Card.Title>
+            <Card.Text className="mb-4">
+              Para acceder a productos con restricción de edad, debes verificar tu identidad:
+            </Card.Text>
 
-        <input
-          type="text"
-          name="nombre"
-          placeholder="Nombre completo"
-          className="auth-card__input"
-          value={form.nombre}
-          onChange={handleChange}
-          disabled={loading}
-          required
-        />
+            {error && <Alert variant="danger">{error}</Alert>}
+            {success && <Alert variant="success">{success}</Alert>}
 
-        <input
-          type="text"
-          name="documento"
-          placeholder="Número de documento"
-          className="auth-card__input"
-          value={form.documento}
-          onChange={handleChange}
-          disabled={loading}
-          required
-        />
+            <Form onSubmit={handleSubmit}>
+              <Form.Group className="mb-3" controlId="inputNombre">
+                <Form.Label>Nombre completo</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="nombre"
+                  value={form.nombre}
+                  onChange={handleChange}
+                  disabled={loading}
+                  required
+                />
+              </Form.Group>
 
-        <input
-          type="date"
-          name="fechaNacimiento"
-          placeholder="Fecha de nacimiento"
-          className="auth-card__input"
-          value={form.fechaNacimiento}
-          onChange={handleChange}
-          disabled={loading}
-          required
-        />
+              <Form.Group className="mb-3" controlId="inputDocumento">
+                <Form.Label>Número de documento</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="documento"
+                  value={form.documento}
+                  onChange={handleChange}
+                  disabled={loading}
+                  required
+                />
+              </Form.Group>
 
-        <button
-          type="submit"
-          className="auth-card__button"
-          disabled={loading}
-        >
-          {loading ? 'Verificando…' : 'Verificar identidad'}
-        </button>
-      </form>
-      <p style={{ marginTop: '1rem', fontSize: '0.9rem' }}>
-        Si deseas, revisa el <a href="https://dnic.example.com" target="_blank" rel="noopener noreferrer">servicio de verificación DNIC</a>.
-      </p>
-      <hr />
-      <Link to="/" className='back-link' style={{ marginTop: '1rem' }}>
-        Volver al menú
-      </Link>
-    </div>
+              <Form.Group className="mb-4" controlId="inputFechaNacimiento">
+                <Form.Label>Fecha de nacimiento</Form.Label>
+                <Form.Control
+                  type="date"
+                  name="fechaNacimiento"
+                  value={form.fechaNacimiento}
+                  onChange={handleChange}
+                  disabled={loading}
+                  required
+                />
+              </Form.Group>
+
+              <div className="d-grid mb-3">
+                <Button variant="primary" type="submit" disabled={loading}>
+                  {loading ? 'Verificando…' : 'Verificar identidad'}
+                </Button>
+              </div>
+            </Form>
+
+            <div className="mb-3">
+              <a
+                href="https://dnic.example.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Revisar servicio de verificación DNIC
+              </a>
+            </div>
+            <hr />
+            <div className="text-center">
+              <Link to="/" className="link-secondary">
+                Volver al menú
+              </Link>
+            </div>
+          </Card.Body>
+        </Card>
+      </Col>
+    </Container>
   );
 }

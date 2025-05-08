@@ -1,24 +1,29 @@
-import { useState, useContext } from 'react';
+// src/pages/tenant/RegisterTenantPage.jsx
+import React, { useState, useContext } from 'react';
 import { createTenant } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
+import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 
 export default function RegisterTenantPage() {
-  const { user } = useContext(AuthContext);  // opcional, para mostrar quién crea
-  const [nombre, setNombre]   = useState('');
+  const { user } = useContext(AuthContext); // opcional, para mostrar quién crea
+  const [nombre, setNombre] = useState('');
   const [dominio, setDominio] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+  const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   const handleSubmit = async e => {
     e.preventDefault();
-    setError(''); setSuccess(''); setLoading(true);
+    setError('');
+    setSuccess('');
+    setLoading(true);
 
     try {
       const tenant = await createTenant({ nombre, dominio });
       setSuccess(`Tenant "${tenant.nombre}" creado con dominio ${tenant.dominio}`);
-      setNombre(''); setDominio('');
+      setNombre('');
+      setDominio('');
     } catch (err) {
       setError(err.response?.data?.message || 'Error al crear tenant');
     } finally {
@@ -27,44 +32,57 @@ export default function RegisterTenantPage() {
   };
 
   return (
-    <div className="auth-card">
-      <h2 className="auth-card__title">Alta de Tenant</h2>
+    <Container className="d-flex justify-content-center align-items-center py-5">
+      <Col xs={12} sm={10} md={8} lg={6}>
+        <Card className="shadow-sm">
+          <Card.Body>
+            <Card.Title className="text-center mb-4">
+              Alta de Tenant
+            </Card.Title>
 
-      <form onSubmit={handleSubmit} className="auth-card__form">
-        {error   && <p className="auth-card__error">{error}</p>}
-        {success && <p className="auth-card__info">{success}</p>}
+            {error && <Alert variant="danger">{error}</Alert>}
+            {success && <Alert variant="success">{success}</Alert>}
 
-        <input
-          type="text"
-          placeholder="Nombre de la cadena"
-          className="auth-card__input"
-          value={nombre}
-          onChange={e => setNombre(e.target.value)}
-          disabled={loading}
-          required
-        />
+            <Form onSubmit={handleSubmit}>
+              <Form.Group className="mb-3" controlId="inputNombre">
+                <Form.Label>Nombre de la cadena</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Ej: Mi Cadena"
+                  value={nombre}
+                  onChange={e => setNombre(e.target.value)}
+                  disabled={loading}
+                  required
+                />
+              </Form.Group>
 
-        <input
-          type="text"
-          placeholder="Dominio (ej: mi-cadena.servipuntos.uy)"
-          className="auth-card__input"
-          value={dominio}
-          onChange={e => setDominio(e.target.value)}
-          disabled={loading}
-          required
-        />
+              <Form.Group className="mb-4" controlId="inputDominio">
+                <Form.Label>Dominio</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="mi-cadena.servipuntos.uy"
+                  value={dominio}
+                  onChange={e => setDominio(e.target.value)}
+                  disabled={loading}
+                  required
+                />
+              </Form.Group>
 
-        <button
-          type="submit"
-          className="auth-card__button"
-          disabled={loading}
-        >
-          {loading ? 'Creando…' : 'Crear Tenant'}
-        </button>
-        <Link to="/" className='back-link' style={{ marginTop: '1rem' }}>
-          Volver al menú
-        </Link>
-      </form>
-    </div>
+              <div className="d-grid mb-3">
+                <Button variant="primary" type="submit" disabled={loading}>
+                  {loading ? 'Creando…' : 'Crear Tenant'}
+                </Button>
+              </div>
+            </Form>
+
+            <div className="text-center">
+              <Link to="/" className="link-secondary">
+                Volver al menú
+              </Link>
+            </div>
+          </Card.Body>
+        </Card>
+      </Col>
+    </Container>
   );
 }
