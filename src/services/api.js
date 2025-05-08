@@ -29,4 +29,14 @@ export async function register({ nombre, apellido, email, password }) {
   return response.data;
 }
 
+/**
+ * Crea un nuevo tenant.
+ * @param {{ nombre: string, dominio: string }} data
+ * @returns {Promise<Object>} el tenant creado
+ */
+export async function createTenant({ nombre, dominio }) {
+  const response = await api.post('/tenants', { nombre, dominio });
+  return response.data;
+}
+
 export default api;
