@@ -49,4 +49,14 @@ export async function createStation({ tenantId, nombre, direccion, estado, servi
   return response.data;
 }
 
+/**
+ * Crea un producto en el catálogo de un tenant.
+ * @param {{ tenantId: string, nombre: string, precio: number, requiereVEAI: boolean }} data
+ * @returns {Promise<Object>} Producto creado
+ */
+export async function createProduct({ tenantId, nombre, precio, requiereVEAI }) {
+  const response = await api.post('/products', { tenantId, nombre, precio, requiereVEAI });
+  return response.data;
+}
+
 export default api;

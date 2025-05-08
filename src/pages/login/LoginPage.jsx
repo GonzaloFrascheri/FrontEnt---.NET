@@ -1,9 +1,9 @@
 import { useContext } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
-import AuthForm from '../components/AuthForm';
-import { AuthContext } from '../context/AuthContext';
+import AuthForm from '../../components/AuthForm';
+import { AuthContext } from '../../context/AuthContext';
 import { signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from '../services/firebase';
+import { auth, googleProvider } from '../../services/firebase';
 
 export default function LoginPage() {
   const navigate = useNavigate();

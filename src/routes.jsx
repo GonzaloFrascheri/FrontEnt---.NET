@@ -2,14 +2,15 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import HomePage from './pages/HomePage';
-import RegisterTenantPage from './pages/RegisterTenantPage';
-import RegisterStationPage from './pages/RegisterStationPage';
+import LoginPage from './pages/login/LoginPage';
+import RegisterPage from './pages/login/RegisterPage';
+import HomePage from './pages/login/HomePage';
+import RegisterTenantPage from './pages/tenant/RegisterTenantPage';
+import RegisterStationPage from './pages/stations/RegisterStationPage';
 
 import { AuthProvider } from './context/AuthProvider';
 import { AuthContext } from './context/AuthContext';
+import RegisterProductPage from './pages/products/RegisterProductPage';
 
 // Componente para rutas protegidas
 function ProtectedRoute({ children }) {
@@ -50,7 +51,14 @@ export default function AppRoutes() {
             </ProtectedRoute>
           }
         />
-
+        <Route
+          path="/products/nuevo"
+          element={
+            <ProtectedRoute>
+              <RegisterProductPage />
+            </ProtectedRoute>
+          }
+        />
         {/* Comodín: redirige al login */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

@@ -85,3 +85,22 @@
     margin-right: 0.5rem;
   }
   
+  .auth-card__label-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem; /* separa de lo que venga después */
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
+  .auth-card__label-checkbox input {
+    width: auto;
+    margin: 0;
+  }
+
+  /* Link */
+  .back-link {
+    margin-top: 1rem;
+    display: inline-block;
+  }

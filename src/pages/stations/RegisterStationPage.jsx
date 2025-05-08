@@ -1,6 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
-import { createStation } from '../services/api';
-import { AuthContext } from '../context/AuthContext';
+import { createStation } from '../../services/api';
+import { AuthContext } from '../../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function RegisterStationPage() {
   const { user, logout } = useContext(AuthContext);
@@ -114,6 +115,9 @@ export default function RegisterStationPage() {
         >
           {loading ? 'Creando…' : 'Crear Estación'}
         </button>
+        <Link to="/" className='back-link' style={{ marginTop: '1rem' }}>
+          Volver al menú
+        </Link>
       </form>
     </div>
   );

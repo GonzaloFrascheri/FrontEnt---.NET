@@ -1,6 +1,6 @@
 // src/pages/HomePage.jsx
 import { useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 
 export default function HomePage() {
@@ -17,7 +17,7 @@ export default function HomePage() {
         <Link to="/tenants/nuevo" className="auth-card__button">
           Alta de Tenant
         </Link>
-        <Link to="/tenants/nuevo" className="auth-card__button">
+        <Link to="/products/nuevo" className="auth-card__button">
           Alta de Producto
         </Link>
         <Link to="/stations/nuevo" className="auth-card__button">

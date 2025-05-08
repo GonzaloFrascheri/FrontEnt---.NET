@@ -1,6 +1,7 @@
 import { useState, useContext } from 'react';
-import { createTenant } from '../services/api';
-import { AuthContext } from '../context/AuthContext';
+import { createTenant } from '../../services/api';
+import { AuthContext } from '../../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function RegisterTenantPage() {
   const { user } = useContext(AuthContext);  // opcional, para mostrar quién crea
@@ -60,6 +61,9 @@ export default function RegisterTenantPage() {
         >
           {loading ? 'Creando…' : 'Crear Tenant'}
         </button>
+        <Link to="/" className='back-link' style={{ marginTop: '1rem' }}>
+          Volver al menú
+        </Link>
       </form>
     </div>
   );
