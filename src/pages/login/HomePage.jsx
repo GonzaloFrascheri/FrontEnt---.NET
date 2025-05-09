@@ -7,10 +7,10 @@ export default function HomePage() {
   const { user, logout } = useContext(AuthContext);
 
   const actions = [
-    { title: 'Alta de Tenant', link: '/tenants/nuevo', variant: 'primary' },
-    { title: 'Alta de Producto', link: '/products/nuevo', variant: 'info' },
-    { title: 'Alta de Estación', link: '/stations/nuevo', variant: 'success' },
-    { title: 'Verificación VEAI', link: '/verify', variant: 'warning' },
+    { title: 'Alta de Tenant', link: '/tenants/nuevo', variant: 'secondary' },
+    { title: 'Alta de Producto', link: '/products/nuevo', variant: 'secondary' },
+    { title: 'Alta de Estación', link: '/stations/nuevo', variant: 'secondary' },
+    { title: 'Verificación VEAI', link: '/verify', variant: 'secondary' },
     { title: 'Canje de Puntos', link: '/redeem', variant: 'secondary' },
     { title: 'Actualización precio del combustible', link: '/fuels/actualizar', variant: 'secondary' },
   ];
