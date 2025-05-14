@@ -69,7 +69,7 @@ export default function UpdateFuelPricePage() {
                   disabled={loading}
                   required
                 >
-                  <option value="">-- elige uno --</option>
+                  <option value="">Seleccionar</option>
                   {fuels.map(f => (
                     <option key={f.id} value={f.id}>
                       {f.nombre} (precio: {f.precio})

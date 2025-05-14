@@ -1,30 +1,54 @@
-// src/pages/HomePage.jsx
+// src/pages/login/HomePage.jsx
 import React, { useContext } from 'react';
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button, Carousel } from 'react-bootstrap';
 import { AuthContext } from '../../context/AuthContext';
+import { CupHotFill ,FuelPumpFill, GiftFill } from 'react-bootstrap-icons';
 
 export default function HomePage() {
-  const { user, logout } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
 
+  // Tus acciones del dashboard (ya sin el carrusel)
   const actions = [
-    { title: 'Alta de Tenant', link: '/tenants/nuevo', variant: 'secondary' },
-    { title: 'Alta de Producto', link: '/products/nuevo', variant: 'secondary' },
-    { title: 'Alta de Estación', link: '/stations/nuevo', variant: 'secondary' },
-    { title: 'Verificación VEAI', link: '/verify', variant: 'secondary' },
-    { title: 'Canje de Puntos', link: '/redeem', variant: 'secondary' },
-    { title: 'Actualización precio del combustible', link: '/fuels/actualizar', variant: 'secondary' },
+    { title: 'Alta de Tenant',     link: '/tenants/nuevo',  variant: 'secondary' },
+    { title: 'Alta de Producto',   link: '/products/nuevo', variant: 'secondary'    },
+    { title: 'Alta de Estación',   link: '/stations/nuevo', variant: 'secondary' },
+    { title: 'Verificación VEAI',  link: '/verify',         variant: 'secondary' },
+    { title: 'Canje de Puntos',    link: '/redeem',         variant: 'secondary' },
+    { title: 'Actualizar Precio',  link: '/fuels/actualizar', variant: 'secondary' },
+  ];
+
+  // Las promociones con su icono
+  const promotions = [
+    {
+      icon: <CupHotFill size={48} className="text-warning mb-3"/>,
+      title: 'Café Gratis',
+      description: 'Canjea 200 puntos por un café',
+      link: '/redeem'
+    },
+    {
+      icon: <FuelPumpFill size={48} className="text-danger mb-3"/>,
+      title: '50% Combustible',
+      description: 'Mitad de precio en nafta 95',
+      link: '/redeem'
+    },
+    {
+      icon: <GiftFill size={48} className="text-success mb-3"/>,
+      title: 'Merchandising',
+      description: 'Artículos por 500 puntos',
+      link: '/redeem'
+    },
   ];
 
   return (
-    <Container className="py-4">
-      {/* Encabezado */}
-      <Row className="mb-4 align-items-center">
+    <Container fluid className="py-4">
+      {/* Bienvenida */}
+      <Row className="mb-4">
         <Col>
-          <h2 className="mb-0">Bienvenido a ServiPuntos</h2>
+          <h2>Bienvenid@ a ServiPuntos</h2>
         </Col>
       </Row>
 
-      {/* Grid de accciones */}
+      {/* Grid de acciones */}
       <Row xs={1} sm={2} md={3} lg={3} className="g-4 mb-5">
         {actions.map(({ title, link, variant }) => (
           <Col key={link}>
@@ -44,48 +68,39 @@ export default function HomePage() {
         ))}
       </Row>
 
-      {/* Sección de promociones */}
-      <section className="mb-5">
-        <h3 className="mb-3">Promociones Destacadas</h3>
-        <Row xs={1} md={2} lg={3} className="g-4">
-          {/* Ejemplo de tarjeta de promoción */}
-          <Col>
-            <Card className="h-100">
-              <Card.Body>
-                <Card.Title>Café Gratis</Card.Title>
-                <Card.Text>Canjea 200 puntos por un café</Card.Text>
-                <Button variant="outline-primary" href="/redeem">
-                  Canjear ahora
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-
-          <Col>
-            <Card className="h-100">
-              <Card.Body>
-                <Card.Title>50% Combustible</Card.Title>
-                <Card.Text>Mitad de precio en nafta 95</Card.Text>
-                <Button variant="outline-primary" href="/redeem">
-                  Canjear ahora
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-
-          <Col>
-            <Card className="h-100">
-              <Card.Body>
-                <Card.Title>Merchandising</Card.Title>
-                <Card.Text>Artículos por 500 puntos</Card.Text>
-                <Button variant="outline-primary" href="/redeem">
-                  Canjear ahora
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      </section>
+      {/* Carrusel de Promociones */}
+      <Row className="mb-4">
+        <Col>
+          <h3>Promociones Destacadas</h3>
+        </Col>
+      </Row>
+      <Row className="justify-content-center">
+        <Col xs="auto">
+          <Carousel
+            controls={false}
+            indicators={true}
+            interval={4000}
+            pause={false}
+            variant="dark"
+            className="promo-carousel"
+          >
+            {promotions.map((promo, idx) => (
+              <Carousel.Item key={idx}>
+                <Card className="text-center shadow-sm">
+                  <Card.Body>
+                    {promo.icon}
+                    <Card.Title>{promo.title}</Card.Title>
+                    <Card.Text>{promo.description}</Card.Text>
+                    <Button variant="outline-primary" href={promo.link}>
+                      Canjear ahora
+                    </Button>
+                  </Card.Body>
+                </Card>
+              </Carousel.Item>
+            ))}
+          </Carousel>
+        </Col>
+      </Row>
     </Container>
   );
 }

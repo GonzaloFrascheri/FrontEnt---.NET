@@ -88,7 +88,7 @@ export default function RegisterProductPage() {
                   disabled={loading}
                   required
                 >
-                  <option value="">-- elige uno --</option>
+                  <option value="">Seleccionar</option>
                   {tenants.map(t => (
                     <option key={t.id} value={t.id}>
                       {t.nombre}
