@@ -80,6 +80,12 @@
   .sidebar-section:hover > .sidebar-submenu {
     display: flex;
   }
+
+  .sidebar-parent.active,
+  .sidebar-submenu .active {
+    background-color: rgba(0,123,255,0.1);
+    border-left: 3px solid #007bff;
+  }
   
   /* Ajusta sangría de los hijos */
   .sidebar-submenu .nav-link {
@@ -92,27 +98,43 @@
     font-weight: 500;
   }
   
-/* Limita el ancho del carrusel y lo centra */
+/* Asegura que el contenedor permita que los indicadores sobresalgan */
 .promo-carousel {
-  width: 18rem;       /* igual que tu Card */
-  margin: 0 auto;     /* centra el carrusel */
+  overflow: visible !important;
 }
 
-/* Fuerza que los indicadores estén en flujo, debajo de la Card, y centrados */
+/* Reposiciona y centra los indicadores abajo de cada tarjeta */
 .promo-carousel .carousel-indicators {
-  position: static !important;      /* ya no absolute */
-  display: flex;
-  justify-content: center;          /* centra horizontalmente */
-  margin: 0.75rem auto 0;           /* algo de espacio arriba, centrado */
-  width: fit-content;               /* solo el ancho de los dots */
+  position: absolute;
+  bottom: -20px;         /* ajusta para separarlos de la tarjeta */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
   padding: 0;
-  list-style: none;
+  margin: 0;
 }
 
-/* Opcional: ajusta el tamaño de los dots */
+/* Estilo genérico de los botones indicadores */
 .promo-carousel .carousel-indicators button {
   width: 10px;
   height: 10px;
-  border-radius: 50%;
   margin: 0 4px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.25) !important;
+  border: none;
+  transition: all 0.3s;
 }
+
+/* Indicador activo */
+.promo-carousel .carousel-indicators .active button {
+  background-color: #0d6efd;       /* el azul de Bootstrap */
+  box-shadow: 0 0 8px rgba(13, 110, 253, 0.6) !important;
+  transform: scale(1.2);
+}
+
+.promo-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
