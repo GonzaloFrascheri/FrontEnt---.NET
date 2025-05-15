@@ -41,7 +41,7 @@ export default function HomePage() {
           className="position-relative"
           style={{ zIndex: 1, width: '100%', maxWidth: 800 }}
         >
-          <h1 className="mt-3">Bienvenid@ a ServiPuntos</h1>
+          <h1 className="mt-3">Bienvenid@s a ServiPuntos</h1>
           <Card className="mx-auto mt-4 shadow-sm">
             <Card.Body>
               <Card.Title>¿Qué es ServiPuntos.uy?</Card.Title>

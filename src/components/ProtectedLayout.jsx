@@ -5,7 +5,11 @@ import {
   Navbar,
   Button,
   Nav,
-  Offcanvas
+  Offcanvas,
+  Container,
+  Row,
+  Col,
+  Image
 } from 'react-bootstrap';
 import {
   List,
@@ -18,6 +22,8 @@ import {
 } from 'react-bootstrap-icons';
 import { AuthContext } from '../context/AuthContext';
 import Footer from './Footer';
+
+import logo from '../../src/assets/logo.jpg';
 
 export default function ProtectedLayout() {
   const { user, logout } = useContext(AuthContext);
@@ -126,21 +132,36 @@ export default function ProtectedLayout() {
         </Offcanvas.Body>
       </Offcanvas>
 
-      {/* Área central: sidebar + contenido */}
-      <div className="d-flex flex-grow-1 overflow-hidden">
-        {/* Sidebar desktop */}
-        <aside
-          className="d-none d-md-flex flex-column bg-light p-3 overflow-auto"
-          style={{ width: 250 }}
-        >
-          {renderSections()}
-        </aside>
+      {/* Contenedor principal */}
+      <Container fluid className="flex-grow-1 px-0">
+        <Row className="g-0 flex-grow-1">
+          {/* ===== Sidebar desktop ===== */}
+          <Col
+            md={2}
+            className="d-none d-md-flex flex-column bg-light p-3 overflow-auto"
+          >
+            {/* Aquí va tu logo */}
+            <div className="text-center mb-4">
+              <Link to="/">
+                <img
+                  src={logo}
+                  alt="ServiPuntos Logo"
+                  style={{ maxWidth: '100%', height: 'auto' }}
+                />
+              </Link>
+            </div>
 
-        {/* Contenido */}
-        <main className="flex-grow-1 overflow-auto p-4">
-          <Outlet />
-        </main>
-      </div>
+            <Nav className="flex-column">
+              {renderSections()}
+            </Nav>
+          </Col>
+
+          {/* ===== Contenido ===== */}
+          <Col md={10} className="p-4 overflow-auto">
+            <Outlet />
+          </Col>
+        </Row>
+      </Container>
 
       {/* Footer */}
       <Footer />
