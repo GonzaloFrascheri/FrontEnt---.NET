@@ -129,7 +129,7 @@ export default function RedeemPointsPage() {
 
           <div className="text-center">
             <Link to="/" className="link-secondary">
-              Volver al menú
+              Volver
             </Link>
           </div>
         </div>

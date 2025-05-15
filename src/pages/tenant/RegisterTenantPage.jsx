@@ -77,7 +77,7 @@ export default function RegisterTenantPage() {
 
             <div className="text-center">
               <Link to="/" className="link-secondary">
-                Volver al menú
+                Volver
               </Link>
             </div>
           </Card.Body>
