@@ -3,14 +3,14 @@ import axios from 'axios';
 // Configura la URL base de tu backend. Puedes ajustar esta variable en tu .env:
 // VITE_API_BASE_URL=http://localhost:4000/api
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
 /**
- * Llama al endpoint de login de tu backend.
+ * Llama al endpoint de login
  * @param {{ email: string, password: string }} credentials
  * @returns {Promise<Object>} datos de usuario y token
  */
@@ -20,7 +20,7 @@ export async function login({ email, password }) {
 }
 
 /**
- * Llama al endpoint de registro de tu backend.
+ * Llama al endpoint de registro
  * @param {{ nombre: string, apellido: string, email: string, password: string }} userData
  * @returns {Promise<Object>} datos del usuario creado
  */
@@ -30,13 +30,33 @@ export async function register({ nombre, apellido, email, password }) {
 }
 
 /**
- * Crea un nuevo tenant.
- * @param {{ nombre: string, dominio: string }} data
- * @returns {Promise<Object>} el tenant creado
+ * Crea un nuevo tenant/cadena.
+ * @param {{ name: string, tenantId: string }} data
+ * @returns {Promise<{ name: string, tenantId: string }>} el tenant creado
  */
-export async function createTenant({ nombre, dominio }) {
-  const response = await api.post('/tenants', { nombre, dominio });
+export async function createTenant({ name, tenantId }) {
+  const payload = { name, tenantId };
+  const response = await api.post('/Tenant/Create', payload);
   return response.data;
+}
+
+/**
+ * Obtiene un tenant por su ID.
+ * @param {number} id
+ * @returns {Promise<{ id: number, name: string, tenantId: string }>}
+ */
+export async function getTenantById(id) {
+  const { data } = await api.get(`/Tenant/${id}`)
+  return data
+}
+
+/**
+ * Obtiene el listado completo de tenants (cadenas).
+ * @returns {Promise<Array<{ id: number, name: string, tenantId: string }>>}
+ */
+export async function getTenants() {
+  const { data } = await api.get('/Tenant')
+  return data
 }
 
 /**
