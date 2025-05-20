@@ -8,6 +8,7 @@ import {
   Carousel,
   Button
 } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import bg from '../../../src/assets/4-9.jpg';
 
@@ -16,9 +17,9 @@ export default function HomePage() {
 
   // ==== Datos de promociones ====
   const promotions = [
-    { title: '☕️ Café de especialidad',     text: 'Canjea 200 puntos por un café' },
-    { title: '⛽️ 50% Combustible', text: 'Mitad de precio en nafta 95' },
-    { title: '🎁 Merchandising',   text: 'Artículos por 500 puntos' },
+    { title: '☕️ Café de especialidad', text: 'Canjea 200 puntos por un café' },
+    { title: '⛽️ 50% Combustible',      text: 'Mitad de precio en nafta 95' },
+    { title: '🎁 Merchandising',        text: 'Artículos por 500 puntos' },
   ];
 
   // ==== Cuenta regresiva ====
@@ -27,18 +28,16 @@ export default function HomePage() {
     const diff = deadline - new Date();
     if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
     return {
-      days:   Math.floor(diff / (1000*60*60*24)),
-      hours:  Math.floor((diff / (1000*60*60)) % 24),
-      minutes:Math.floor((diff / (1000*60)) % 60),
-      seconds:Math.floor((diff / 1000) % 60),
+      days:    Math.floor(diff / (1000 * 60 * 60 * 24)),
+      hours:   Math.floor((diff / (1000 * 60 * 60)) % 24),
+      minutes: Math.floor((diff / (1000 * 60)) % 60),
+      seconds: Math.floor((diff / 1000) % 60),
     };
   };
 
   const [timeLeft, setTimeLeft] = useState(calcTimeLeft());
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(calcTimeLeft());
-    }, 1000);
+    const timer = setInterval(() => setTimeLeft(calcTimeLeft()), 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -89,10 +88,19 @@ export default function HomePage() {
             >
               {promotions.map((promo, idx) => (
                 <Carousel.Item key={idx}>
-                  <Card className="mx-auto p-4 text-center" style={{ maxWidth: 350 }}>
-                    <Card.Title className="display-6">{promo.title}</Card.Title>
+                  <Card
+                    className="mx-auto p-4 text-center"
+                    style={{ maxWidth: 350 }}
+                  >
+                    <Card.Title className="display-6">
+                      {promo.title}
+                    </Card.Title>
                     <Card.Text>{promo.text}</Card.Text>
-                    <Button variant="outline-primary" href="/redeem">
+                    <Button
+                      as={Link}
+                      to="/redeem"
+                      variant="outline-primary"
+                    >
                       Canjear ahora
                     </Button>
                   </Card>
@@ -102,7 +110,10 @@ export default function HomePage() {
           </Col>
 
           {/* — Banner & Countdown Der — */}
-          <Col md={6} className="d-flex flex-column align-items-center">
+          <Col
+            md={6}
+            className="d-flex flex-column align-items-center"
+          >
             {/* Countdown */}
             <Card
               border="warning"
@@ -113,7 +124,7 @@ export default function HomePage() {
                 Promociones válidas hasta: 30/06/2025
               </Card.Header>
               <Card.Body>
-                <div style={{ fontSize: '1.5rem', fontWeight: '500' }}>
+                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
                   {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
                 </div>
               </Card.Body>
@@ -133,11 +144,28 @@ export default function HomePage() {
                   <strong>¡Nuevas promociones cada semana!</strong><br/>
                   Mantente atento para descubrir ofertas exclusivas y acumular más puntos.
                 </Card.Text>
-                <Button variant="info" href="/promociones">
+                <Button
+                  as={Link}
+                  to="/promociones"
+                  variant="info"
+                >
                   Ver todas
                 </Button>
               </Card.Body>
             </Card>
+          </Col>
+        </Row>
+
+        {/* — Botón Ver Catálogo Completo — */}
+        <Row className="mt-4">
+          <Col className="text-center">
+            <Button
+              as={Link}
+              to="/catalog"
+              variant="outline-primary"
+            >
+              🔍 Ver catálogo completo
+            </Button>
           </Col>
         </Row>
       </Container>

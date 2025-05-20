@@ -1,29 +1,31 @@
 // src/pages/points/RedeemPointsPage.jsx
-import { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { getCatalog, redeemProduct } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { Spinner, Alert } from 'react-bootstrap';
 
 export default function RedeemPointsPage() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [catalog, setCatalog] = useState([]);
+  const [loadingCatalog, setLoadingCatalog] = useState(true);
   const [selectedId, setSelectedId] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [userPoints, setUserPoints] = useState(0);
+  const [userPoints, setUserPoints] = useState(user?.puntos || 0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    // TODO: reemplazar por llamada real a getCatalog()
-    // getCatalog().then(data => setCatalog(data));
-    setCatalog([
-      { id: 'p1', nombre: 'Producto A', costoPuntos: 100, edadMinima: 18 },
-      { id: 'p2', nombre: 'Producto B', costoPuntos: 500, edadMinima: 21 }
-    ]);
-    // TODO: obtener puntos reales del usuario
+    setLoadingCatalog(true);
+    getCatalog()
+      .then(data => setCatalog(data))
+      .catch(() => setError('No se pudo cargar el catálogo de productos.'))
+      .finally(() => setLoadingCatalog(false));
+
+    // Inicializa puntos desde el contexto
     setUserPoints(user?.puntos || 0);
   }, [user]);
 
@@ -75,37 +77,35 @@ export default function RedeemPointsPage() {
             Tienes <strong>{userPoints}</strong> puntos disponibles.
           </p>
 
-          {error && (
-            <div className="alert alert-danger" role="alert">
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="alert alert-success" role="alert">
-              {success}
-            </div>
-          )}
+          {error && <Alert variant="danger">{error}</Alert>}
+          {success && <Alert variant="success">{success}</Alert>}
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="selectProduct" className="form-label">
                 Selecciona un producto
               </label>
-              <select
-                id="selectProduct"
-                className="form-select"
-                value={selectedId}
-                onChange={handleSelect}
-                disabled={loading}
-                required
-              >
-                <option value="">Seleccionar</option>
-                {catalog.map(item => (
-                  <option key={item.id} value={item.id}>
-                    {item.nombre} — {item.costoPuntos} pts
-                  </option>
-                ))}
-              </select>
+              {loadingCatalog ? (
+                <div className="text-center py-2">
+                  <Spinner animation="border" size="sm" /> Cargando…
+                </div>
+              ) : (
+                <select
+                  id="selectProduct"
+                  className="form-select"
+                  value={selectedId}
+                  onChange={handleSelect}
+                  disabled={loading}
+                  required
+                >
+                  <option value="">Seleccionar</option>
+                  {catalog.map(item => (
+                    <option key={item.id} value={item.id}>
+                      {item.nombre} — {item.costoPuntos} pts
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             {selectedProduct && (
@@ -120,7 +120,7 @@ export default function RedeemPointsPage() {
               <button
                 type="submit"
                 className="btn btn-primary"
-                disabled={loading}
+                disabled={loading || loadingCatalog}
               >
                 {loading ? 'Procesando…' : 'Confirmar canje'}
               </button>
