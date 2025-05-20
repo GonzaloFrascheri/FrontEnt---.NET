@@ -50,7 +50,8 @@ export default function ProtectedLayout() {
       icon: <Lock className="me-2" />,
       items: [
         { label: 'Verificación VEAI', to: '/verify' },
-        { label: 'Canje de Puntos', to: '/redeem' }
+        { label: 'Canje de Puntos', to: '/redeem' },
+        { label: 'Historial de Transacciones', to: '/history' },
       ]
     }
   ];

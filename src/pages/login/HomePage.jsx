@@ -78,7 +78,11 @@ export default function HomePage() {
         <Row className="g-4">
           {/* — Carrusel Izq — */}
           <Col md={6}>
-            <h2 className="mb-4 text-center text-md-start">Promociones Destacadas</h2>
+            <Row className="justify-content-center justify-content-md-start mb-4">
+             <Col xs="auto">
+               <h2>Promociones Destacadas</h2>
+             </Col>
+           </Row>
             <Carousel
               fade
               interval={3000}
@@ -116,11 +120,11 @@ export default function HomePage() {
           >
             {/* Countdown */}
             <Card
-              border="warning"
+              border="primary"
               className="w-100 shadow-sm mb-4 text-center"
               style={{ maxWidth: 400 }}
             >
-              <Card.Header className="bg-warning text-white">
+              <Card.Header className="bg-primary text-white">
                 Promociones válidas hasta: 30/06/2025
               </Card.Header>
               <Card.Body>
@@ -132,11 +136,11 @@ export default function HomePage() {
 
             {/* Novedades */}
             <Card
-              border="info"
+              border="secondary"
               className="w-100 shadow-sm"
               style={{ maxWidth: 400 }}
             >
-              <Card.Header className="bg-info text-white text-center">
+              <Card.Header className="bg-secondary text-white text-center">
                 🎉 Novedades
               </Card.Header>
               <Card.Body className="text-center">
@@ -144,13 +148,6 @@ export default function HomePage() {
                   <strong>¡Nuevas promociones cada semana!</strong><br/>
                   Mantente atento para descubrir ofertas exclusivas y acumular más puntos.
                 </Card.Text>
-                <Button
-                  as={Link}
-                  to="/promociones"
-                  variant="info"
-                >
-                  Ver todas
-                </Button>
               </Card.Body>
             </Card>
           </Col>

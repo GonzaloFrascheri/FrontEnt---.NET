@@ -19,6 +19,7 @@ import { AuthContext } from './context/AuthContext';
 import ProtectedLayout from './components/ProtectedLayout';
 import ProfilePage from './pages/login/ProfilePage';
 import CatalogPage from './pages/catalog/CatalogPage';
+import HistoryPage from './pages/history/HistoryPage';
 
 
 // Componente para rutas protegidas
@@ -53,6 +54,7 @@ export default function AppRoutes() {
           <Route path="products/nuevo" element={<RegisterProductPage />} />
           <Route path="fuels/actualizar" element={<UpdateFuelPricePage />} />
           <Route path="redeem" element={<RedeemPointsPage />} />
+          <Route path="history" element={<HistoryPage />} />
           <Route path="verify" element={<VerifyIdentityPage />} />
         </Route>
 

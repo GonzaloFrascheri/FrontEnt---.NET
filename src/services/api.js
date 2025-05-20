@@ -137,4 +137,13 @@ export async function updateProfile(data) {
   return response.data;
 }
 
+/**
+ * Obtiene el historial de transacciones del usuario logueado.
+ * @returns {Promise<Array<{ id: number, fecha: string, descripcion: string, puntos: number }>>}
+ */
+export async function getHistory() {
+  const response = await api.get('/points/history');
+  return response.data;
+}
+
 export default api;
