@@ -17,6 +17,7 @@ import VerifyIdentityPage from './pages/verifyAge/VerifyIdentityPage';
 import { AuthProvider } from './context/AuthProvider';
 import { AuthContext } from './context/AuthContext';
 import ProtectedLayout from './components/ProtectedLayout';
+import ProfilePage from './pages/login/ProfilePage';
 
 
 // Componente para rutas protegidas
@@ -45,6 +46,7 @@ export default function AppRoutes() {
           {/* La ruta índice (/) muestra HomePage */}
           <Route index element={<HomePage />} />
           <Route path="tenants/nuevo" element={<RegisterTenantPage />} />
+          <Route path="perfil" element={<ProfilePage />} />
           <Route path="stations/nuevo" element={<RegisterStationPage />} />
           <Route path="products/nuevo" element={<RegisterProductPage />} />
           <Route path="fuels/actualizar" element={<UpdateFuelPricePage />} />
