@@ -2,40 +2,37 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { getCatalog, redeemProduct } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
-import { Link, useNavigate } from 'react-router-dom';
-import { Spinner, Alert } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { QRCodeCanvas } from 'qrcode.react';
+import { Button, Spinner, Alert, Form } from 'react-bootstrap';
 
 export default function RedeemPointsPage() {
   const { user } = useContext(AuthContext);
-  const navigate = useNavigate();
 
-  const [catalog, setCatalog] = useState([]);
-  const [loadingCatalog, setLoadingCatalog] = useState(true);
-  const [selectedId, setSelectedId] = useState('');
+  const [catalog, setCatalog]         = useState([]);
+  const [selectedId, setSelectedId]   = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [userPoints, setUserPoints] = useState(user?.puntos || 0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [userPoints, setUserPoints]   = useState(user.puntos || 0);
+
+  const [loading, setLoading]         = useState(false);
+  const [error, setError]             = useState('');
+  const [qrValue, setQrValue]         = useState('');
 
   useEffect(() => {
-    setLoadingCatalog(true);
-    getCatalog()
-      .then(data => setCatalog(data))
-      .catch(() => setError('No se pudo cargar el catálogo de productos.'))
-      .finally(() => setLoadingCatalog(false));
-
-    // Inicializa puntos desde el contexto
-    setUserPoints(user?.puntos || 0);
-  }, [user]);
+    // Mock: reemplazar por getCatalog()
+    setCatalog([
+      { id: 'p1', nombre: 'Café A', costoPuntos: 200, edadMinima: 0 },
+      { id: 'p2', nombre: 'Combustible 50%', costoPuntos: 500, edadMinima: 18 },
+      { id: 'p3', nombre: 'Merchandising', costoPuntos: 500, edadMinima: 0 },
+    ]);
+  }, []);
 
   const handleSelect = e => {
     const id = e.target.value;
     setSelectedId(id);
-    const prod = catalog.find(item => item.id === id) || null;
-    setSelectedProduct(prod);
+    setSelectedProduct(catalog.find(p => p.id === id) || null);
     setError('');
-    setSuccess('');
+    setQrValue('');
   };
 
   const handleSubmit = async e => {
@@ -48,25 +45,51 @@ export default function RedeemPointsPage() {
       setError('Puntos insuficientes.');
       return;
     }
-    if (selectedProduct.edadMinima && user.edad < selectedProduct.edadMinima) {
-      setError('No cumple edad mínima.');
-      return;
-    }
 
     setLoading(true);
-    setError('');
-    setSuccess('');
     try {
-      await redeemProduct({ productId: selectedProduct.id });
-      setSuccess(`Has canjeado "${selectedProduct.nombre}".`);
+      // TODO: aquí llama realmente a redeemProduct({ productId })
+      // const { token } = await redeemProduct({ productId: selectedProduct.id });
+      // setQrValue(token);
+
+      // Mock:
+      const fakePayload = {
+        user: user.email,
+        product: selectedProduct.id,
+        ts: Date.now()
+      };
+      setQrValue(JSON.stringify(fakePayload));
       setUserPoints(prev => prev - selectedProduct.costoPuntos);
-      setTimeout(() => navigate('/'), 1500);
-    } catch (err) {
-      setError(err.response?.data?.message || 'Error al canjear.');
+      setError('');
+    } catch {
+      setError('Error al canjear.');
     } finally {
       setLoading(false);
     }
   };
+
+  if (qrValue) {
+    return (
+      <div className="text-center py-5">
+        <h4 className="mb-4">¡Canje confirmado!</h4>
+        <p>Escanea este código en tu estación para validar tu oferta:</p>
+        <div className="d-inline-block p-3 bg-white shadow-sm">
+          <QRCode value={qrValue} size={256} />
+        </div>
+        <div className="d-inline-block p-3 bg-white shadow-sm">
+            <QRCodeCanvas
+              value={qrValue}
+              size={256}
+            />
+          </div>
+        <div className="mt-4">
+          <Button as={Link} to="/" variant="secondary">
+            Volver al inicio
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="d-flex justify-content-center align-items-center py-5">
@@ -78,59 +101,34 @@ export default function RedeemPointsPage() {
           </p>
 
           {error && <Alert variant="danger">{error}</Alert>}
-          {success && <Alert variant="success">{success}</Alert>}
 
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="selectProduct" className="form-label">
-                Selecciona un producto
-              </label>
-              {loadingCatalog ? (
-                <div className="text-center py-2">
-                  <Spinner animation="border" size="sm" /> Cargando…
-                </div>
-              ) : (
-                <select
-                  id="selectProduct"
-                  className="form-select"
-                  value={selectedId}
-                  onChange={handleSelect}
-                  disabled={loading}
-                  required
-                >
-                  <option value="">Seleccionar</option>
-                  {catalog.map(item => (
-                    <option key={item.id} value={item.id}>
-                      {item.nombre} — {item.costoPuntos} pts
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-
-            {selectedProduct && (
-              <p className="mb-3">
-                <small className="text-muted">
-                  Edad mínima: {selectedProduct.edadMinima}
-                </small>
-              </p>
-            )}
+          <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3">
+              <Form.Label>Selecciona un producto</Form.Label>
+              <Form.Select
+                value={selectedId}
+                onChange={handleSelect}
+                disabled={loading}
+                required
+              >
+                <option value="">-- Seleccionar --</option>
+                {catalog.map(item => (
+                  <option key={item.id} value={item.id}>
+                    {item.nombre} — {item.costoPuntos} pts
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
 
             <div className="d-grid mb-3">
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={loading || loadingCatalog}
-              >
-                {loading ? 'Procesando…' : 'Confirmar canje'}
-              </button>
+              <Button type="submit" disabled={loading}>
+                {loading ? <Spinner animation="border" size="sm" /> : 'Confirmar canje'}
+              </Button>
             </div>
-          </form>
+          </Form>
 
           <div className="text-center">
-            <Link to="/" className="link-secondary">
-              Volver
-            </Link>
+            <Link to="/">Volver</Link>
           </div>
         </div>
       </div>
