@@ -1,3 +1,8 @@
+/* src/index.css */
+@import url('https://unpkg.com/leaflet/dist/leaflet.css');
+@import url('https://unpkg.com/react-leaflet-markercluster/dist/styles.min.css');
+
+
 /* Que la fila principal ocupe toda la altura */
 html, body, #root {
   height: 100%;

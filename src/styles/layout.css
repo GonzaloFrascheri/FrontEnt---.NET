@@ -1,3 +1,7 @@
+/* src/index.css o src/globals.css */
+@import url('https://unpkg.com/leaflet/dist/leaflet.css');
+@import url('https://unpkg.com/react-leaflet-markercluster/dist/styles.min.css');
+
 /* Layout de toda la app: header + main + footer ocupa 100vh */
 .layout {
     display: flex;

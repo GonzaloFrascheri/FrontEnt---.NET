@@ -4,6 +4,7 @@ import axios from 'axios';
 // VITE_API_BASE_URL=http://localhost:4000/api
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
+  withCredentials: true, 
   headers: {
     'Content-Type': 'application/json',
   },
@@ -12,11 +13,11 @@ const api = axios.create({
 /**
  * Llama al endpoint de login
  * @param {{ email: string, password: string }} credentials
- * @returns {Promise<Object>} datos de usuario y token
+ * @returns {Promise<Object>} datos del usuario (sin token)
  */
 export async function login({ email, password }) {
-  const response = await api.post('/auth/login', { email, password });
-  return response.data;
+  const response = await api.post('/Login/Login', { email, password });
+  return response.data.data;
 }
 
 /**

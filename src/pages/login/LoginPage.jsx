@@ -1,38 +1,44 @@
-import { useContext } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom';
+// src/pages/login/LoginPage.jsx
+import React, { useContext, useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import AuthForm from '../../components/AuthForm';
 import { AuthContext } from '../../context/AuthContext';
-import { signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from '../../services/firebase';
 
 export default function LoginPage() {
+  const { user, login, loginWithGoogle } = useContext(AuthContext);
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const [error, setError] = useState('');
 
-  const handleEmailPassword = ({ email, password }) => {
-    // Por ahora no funcional, luego integrarás:
-    console.log('Credenciales:', email, password);
+  const handleEmailPassword = async creds => {
+    setError('');
+    try {
+      await login(creds);
+      navigate('/', { replace: true });
+    } catch (err) {
+      console.error(err);
+      setError('Credenciales inválidas');
+    }
   };
 
-  const handleGoogleLogin = () => {
-    signInWithPopup(auth, googleProvider)
-      .then(result => {
-        console.log('Usuario Google:', result.user);
-        navigate('/', { replace: true });
-      })
-      .catch(err => console.error('Error Google login:', err));
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithGoogle();
+      navigate('/', { replace: true });
+    } catch (err) {
+      console.error(err);
+      setError('Error al iniciar con Google');
+    }
   };
 
-  if (user) {
-    return <Navigate to="/" replace />;
-  }
+  if (user) return <Navigate to="/" replace />;
 
   return (
-    <div>
+    <>
+      {error && <div className="alert alert-danger text-center">{error}</div>}
       <AuthForm
         onSubmit={handleEmailPassword}
         googleLogin={handleGoogleLogin}
       />
-    </div>
+    </>
   );
 }
