@@ -11,12 +11,9 @@ import {
   Col
 } from 'react-bootstrap';
 import {
-  List,
-  BoxArrowRight,
-  PersonCircle,
   Building,
   FuelPump,
-  Lock
+  PersonFill
 } from 'react-bootstrap-icons';
 import { AuthContext } from '../context/AuthContext';
 import Footer from './Footer';
@@ -40,13 +37,13 @@ export default function ProtectedLayout() {
       title: 'Estaciones',
       icon: <FuelPump className="me-2" />,
       items: [
-        { label: 'Actualizar Precio', to: '/fuels/actualizar' },
+        /*{ label: 'Actualizar Precio', to: '/fuels/actualizar' },*/
         { label: 'Mapa de Estaciones', to: '/stations/map' }
       ]
     },
     {
       title: 'Cliente',
-      icon: <Lock className="me-2" />,
+      icon: <PersonFill className="me-2" />,
       items: [
         { label: 'Verificación VEAI', to: '/verify' },
         { label: 'Canje de Puntos', to: '/redeem' },

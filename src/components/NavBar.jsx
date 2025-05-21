@@ -1,11 +1,10 @@
 // src/components/NavBar.jsx
 import React, { useContext } from 'react';
 import { Navbar, Container, Nav, Button } from 'react-bootstrap';
-import { PersonCircle, BoxArrowRight } from 'react-bootstrap-icons';
+import { BoxArrowRight, PersonFillGear } from 'react-bootstrap-icons';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { PointsContext } from '../context/PointsContext';
-import logo from '../assets/logo.jpg';
 
 export default function NavBar() {
   const { user, logout } = useContext(AuthContext);
@@ -17,7 +16,7 @@ export default function NavBar() {
         {/* Ítems centrales: Perfil, email y puntos */}
         <Nav className="d-flex align-items-center">
           <Nav.Link as={Link} to="/perfil" className="text-white d-flex align-items-center me-4">
-            <PersonCircle size={24} className="me-2" />
+            <PersonFillGear size={24} className="me-2" />
             Perfil
           </Nav.Link>
 
