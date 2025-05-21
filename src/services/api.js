@@ -10,6 +10,7 @@ const api = axios.create({
   },
 });
 
+/*--------------------------------LOGIN--------------------------------*/
 /**
  * Llama al endpoint de login
  * @param {{ email: string, password: string }} credentials
@@ -30,6 +31,8 @@ export async function register({ nombre, apellido, email, password }) {
   return response.data;
 }
 
+
+/*--------------------------------TENANT--------------------------------*/
 /**
  * Crea un nuevo tenant/cadena.
  * @param {{ name: string, tenantId: string }} data
@@ -60,16 +63,19 @@ export async function getTenants() {
   return data
 }
 
+
+/*--------------------------------ESTACION--------------------------------*/
 /**
  * Crea una nueva estación para un tenant dado.
- * @param {{ tenantId: string, nombre: string, direccion: string, estado: string, servicios: string[] }} data
+ * @param {{ tenantId: string, latitud: string, longitud: string }} data
  * @returns {Promise<Object>} estación creada
  */
-export async function createStation({ tenantId, nombre, direccion, estado, servicios }) {
-  const response = await api.post('/stations', { tenantId, nombre, direccion, estado, servicios }); // ajustar /stations según tu API
+export async function createStation({ tenantId, latitud, longitud }) {
+  const response = await api.post('/stations', { tenantId, latitud, longitud });
   return response.data;
 }
 
+/*--------------------------------PRODUCTO--------------------------------*/
 /**
  * Crea un producto en el catálogo de un tenant.
  * @param {{ tenantId: string, nombre: string, precio: number, requiereVEAI: boolean }} data
@@ -77,16 +83,6 @@ export async function createStation({ tenantId, nombre, direccion, estado, servi
  */
 export async function createProduct({ tenantId, nombre, precio, requiereVEAI }) {
   const response = await api.post('/products', { tenantId, nombre, precio, requiereVEAI });
-  return response.data;
-}
-
-/**
- * Actualiza el precio de un combustible para todas las estaciones.
- * @param {{ productId: string, nuevoPrecio: number }} data
- * @returns {Promise<Object>} datos del combustible actualizado
- */
-export async function updateFuelPrice({ productId, nuevoPrecio }) {
-  const response = await api.put(`/fuels/${productId}/price`, { precio: nuevoPrecio });
   return response.data;
 }
 
@@ -109,6 +105,19 @@ export async function redeemProduct({ productId }) {
   return response.data;
 }
 
+/*--------------------------------COMBUSTIBLE--------------------------------*/
+/**
+ * Actualiza el precio de un combustible para todas las estaciones.
+ * @param {{ productId: string, nuevoPrecio: number }} data
+ * @returns {Promise<Object>} datos del combustible actualizado
+ */
+export async function updateFuelPrice({ productId, nuevoPrecio }) {
+  const response = await api.put(`/fuels/${productId}/price`, { precio: nuevoPrecio });
+  return response.data;
+}
+
+
+/*--------------------------------VERIFICACION DE EDAD--------------------------------*/
 /**
  * Verifica la identidad y edad del usuario.
  * @param {{ nombre: string, documento: string, fechaNacimiento: string }} data
@@ -119,6 +128,7 @@ export async function verifyIdentity(data) {
   return response.data;
 }
 
+/*--------------------------------PERFIL DE USUARIO--------------------------------*/
 /**
  * Obtiene los datos del perfil del usuario autenticado.
  * @returns {Promise<{ nombre:string, apellido:string, email:string }>}
@@ -138,6 +148,7 @@ export async function updateProfile(data) {
   return response.data;
 }
 
+/*--------------------------------TRANSACCIONES--------------------------------*/
 /**
  * Obtiene el historial de transacciones del usuario logueado.
  * @returns {Promise<Array<{ id: number, fecha: string, descripcion: string, puntos: number }>>}

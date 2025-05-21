@@ -21,6 +21,7 @@ import {
 import { AuthContext } from '../context/AuthContext';
 import Footer from './Footer';
 import logo from '../assets/logo.jpg';
+import NavBar from './NavBar';
 
 export default function ProtectedLayout() {
   const { user, logout } = useContext(AuthContext);
@@ -89,43 +90,7 @@ export default function ProtectedLayout() {
 
   return (
     <div className="d-flex flex-column min-vh-100">
-      {/* Navbar superior */}
-      <Navbar bg="dark" variant="dark" expand="md" className="px-3">
-        {/* botón para offcanvas en móvil */}
-        <Button
-          variant="outline-light"
-          className="me-3 d-md-none"
-          onClick={() => setShowCanvas(true)}
-        >
-          <List />
-        </Button>
-
-        {/* Link a Perfil con icono */}
-        <Nav className="d-flex align-items-center">
-          <Nav.Link
-            as={Link}
-            to="/perfil"
-            className="text-white d-flex align-items-center me-4"
-          >
-            <PersonCircle size={24} className="me-2" />
-            Perfil
-          </Nav.Link>
-          <span className="text-white me-4">{user.email}</span>
-          <span className="text-white">
-            Puntos: <strong>{user.puntos ?? 0}</strong>
-          </span>
-        </Nav>
-
-        {/* Botón Cerrar sesión */}
-        <Button
-          variant="outline-danger"
-          onClick={logout}
-          className="ms-auto"
-        >
-          <BoxArrowRight className="me-1" />
-          Salir
-        </Button>
-      </Navbar>
+      <NavBar />
 
       {/* Offcanvas para móvil */}
       <Offcanvas

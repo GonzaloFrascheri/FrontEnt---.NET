@@ -4,32 +4,34 @@ import { Navbar, Container, Nav, Button } from 'react-bootstrap';
 import { PersonCircle, BoxArrowRight } from 'react-bootstrap-icons';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { PointsContext } from '../context/PointsContext';
 import logo from '../assets/logo.jpg';
 
 export default function NavBar() {
   const { user, logout } = useContext(AuthContext);
+  const { balance }      = useContext(PointsContext);
 
   return (
     <Navbar bg="dark" variant="dark" expand="md" className="px-3 mb-4">
       <Container fluid>
-        {/* Brand + logo */}
-        <Navbar.Brand as={Link} to="/" className="d-flex align-items-center">
-          <img
-            src={logo}
-            alt="ServiPuntos"
-            height="28"
-            className="me-2"
-          />
-          <span className="text-white">ServiPuntos</span>
-        </Navbar.Brand>
+        {/* Ítems centrales: Perfil, email y puntos */}
+        <Nav className="d-flex align-items-center">
+          <Nav.Link as={Link} to="/perfil" className="text-white d-flex align-items-center me-4">
+            <PersonCircle size={24} className="me-2" />
+            Perfil
+          </Nav.Link>
 
-        {/* User / points / logout */}
-        <Nav className="ms-auto align-items-center">
-          <PersonCircle size={24} className="text-white me-2" />
-          <span className="text-white me-3">{user.email}</span>
-          <span className="text-white me-3">
-            Puntos: <strong>{user.puntos ?? 0}</strong>
+          <span className="text-white me-4">
+            {user.email}
           </span>
+
+          <Nav.Link as={Link} to="/balance" className="text-white d-flex align-items-center">
+            Puntos: <strong className="ms-1">{balance}</strong>
+          </Nav.Link>
+        </Nav>
+
+        {/* Aquí empujamos todo lo anterior a la izquierda y éste botón se queda a la derecha */}
+        <Nav className="ms-auto">
           <Button variant="outline-danger" onClick={logout}>
             <BoxArrowRight className="me-1" />
             Salir
