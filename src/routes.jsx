@@ -7,21 +7,19 @@ import NavBar from './components/NavBar';
 import LoginPage from './pages/login/LoginPage';
 import RegisterPage from './pages/login/RegisterPage';
 import HomePage from './pages/login/HomePage';
-import RegisterTenantPage from './pages/tenant/RegisterTenantPage';
-import RegisterStationPage from './pages/stations/RegisterStationPage';
-import RegisterProductPage from './pages/products/RegisterProductPage';
 import UpdateFuelPricePage from './pages/fuel/UpdateFuelPricePage';
 import RedeemPointsPage from './pages/points/RedeemPointsPage';
 import VerifyIdentityPage from './pages/verifyAge/VerifyIdentityPage';
-
-import { AuthProvider } from './context/AuthProvider';
-import { AuthContext } from './context/AuthContext';
-import ProtectedLayout from './components/ProtectedLayout';
 import ProfilePage from './pages/login/ProfilePage';
 import CatalogPage from './pages/catalog/CatalogPage';
 import HistoryPage from './pages/history/HistoryPage';
 import StationsMapPage from './pages/map/StationsMapPage';
 import BalancePage from './pages/balance/BalancePage';
+
+import { AuthProvider } from './context/AuthProvider';
+import { AuthContext } from './context/AuthContext';
+import ProtectedLayout from './components/ProtectedLayout';
+
 
 
 // Componente para rutas protegidas
@@ -49,11 +47,8 @@ export default function AppRoutes() {
         >
           {/* La ruta índice (/) muestra HomePage */}
           <Route index element={<HomePage />} />
-          <Route path="tenants/nuevo" element={<RegisterTenantPage />} />
           <Route path="catalog" element={<CatalogPage />} />
           <Route path="perfil" element={<ProfilePage />} />
-          <Route path="stations/nuevo" element={<RegisterStationPage />} />
-          <Route path="products/nuevo" element={<RegisterProductPage />} />
           <Route path="fuels/actualizar" element={<UpdateFuelPricePage />} />
           <Route path="redeem" element={<RedeemPointsPage />} />
           <Route path="history" element={<HistoryPage />} />

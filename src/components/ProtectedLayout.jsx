@@ -34,15 +34,12 @@ export default function ProtectedLayout() {
       icon: <Building className="me-2" />,
       items: [
         { label: 'Dashboard', to: '/' },
-        { label: 'Alta de Tenant', to: '/tenants/nuevo' },
-        { label: 'Alta de Producto', to: '/products/nuevo' }
       ]
     },
     {
       title: 'Estaciones',
       icon: <FuelPump className="me-2" />,
       items: [
-        { label: 'Alta de Estación', to: '/stations/nuevo' },
         { label: 'Actualizar Precio', to: '/fuels/actualizar' },
         { label: 'Mapa de Estaciones', to: '/stations/map' }
       ]

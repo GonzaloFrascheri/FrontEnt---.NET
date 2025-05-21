@@ -28,12 +28,12 @@ export default function StationsMapPage() {
     ]);
   }, []);
 
-  // icono de 48×48, anchor en la base
+  
   const stationIcon = L.icon({
     iconUrl: estacion,
     iconSize:   [48, 48],
-    iconAnchor: [24, 48],    // la base del icono (centro abajo)
-    popupAnchor: [0, -48],   // popup justo encima del icono
+    iconAnchor: [24, 48],
+    popupAnchor: [0, -48],
   });
 
   return (

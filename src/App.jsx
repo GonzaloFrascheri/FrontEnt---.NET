@@ -8,8 +8,8 @@ import { PointsProvider } from './context/PointsContext';
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>       {/* Asegúrate de que esto venga de AuthProvider.jsx */}
-        <PointsProvider>   {/* Asegúrate de que esto venga de PointsContext.jsx */}
+      <AuthProvider>       
+        <PointsProvider>   
           <AppRoutes />
         </PointsProvider>
       </AuthProvider>
