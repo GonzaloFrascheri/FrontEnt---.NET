@@ -13,7 +13,9 @@ export default function LoginPage() {
     setError('');
     try {
       await login(creds);
-      navigate('/', { replace: true });
+       setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 100);
     } catch (err) {
       console.error(err);
       setError('Credenciales inválidas');

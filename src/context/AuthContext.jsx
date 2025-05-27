@@ -1,4 +1,3 @@
-// context/AuthContext.jsx
 import React, { createContext, useState, useEffect } from 'react';
 import { login as apiLogin } from '../services/api';
 
@@ -7,21 +6,28 @@ export const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
-  // Opcional: puedes intentar recuperar sesión al montar
   useEffect(() => {
-    // si tienes un endpoint tipo GET /api/auth/me para saber si hay sesión activa,
-    // aquí podrías invocarlo y hacer setUser(res.data)…
+    // Leer el token desde localStorage si existe (persistencia al refrescar)
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      // Si querés, decodificá el token para sacar info del usuario, si no solo setear que está logueado
+      setUser({ token });
+    }
   }, []);
 
   const login = async (creds) => {
-    const userData = await apiLogin(creds);
-    setUser(userData);
-    // ya no guardamos token en localStorage
+    localStorage.removeItem('auth_token'); // Limpia antes
+    const token = await apiLogin(creds);
+    if (token) {
+      localStorage.setItem('auth_token', token);
+      setUser({ token });
+    } else {
+      throw new Error('Login fallido');
+    }
   };
 
-  const logout = async () => {
-    // asumiendo que tienes un endpoint /Logout si es necesario:
-    // await api.post('/auth/logout');
+  const logout = () => {
+    localStorage.removeItem('auth_token');
     setUser(null);
   };
 

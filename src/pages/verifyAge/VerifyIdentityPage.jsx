@@ -1,17 +1,15 @@
 // src/pages/verifyAge/VerifyIdentityPage.jsx
 import React, { useState, useContext } from 'react';
-import { verifyIdentity } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
+import { verifyIdentity } from '../../services/api';
 
 export default function VerifyIdentityPage() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    nombre: user.nombre || '',
-    documento: '',
-    fechaNacimiento: ''
+    NroDocumento: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -54,42 +52,17 @@ export default function VerifyIdentityPage() {
             {success && <Alert variant="success">{success}</Alert>}
 
             <Form onSubmit={handleSubmit}>
-              <Form.Group className="mb-3" controlId="inputNombre">
-                <Form.Label>Nombre completo</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="nombre"
-                  value={form.nombre}
-                  onChange={handleChange}
-                  disabled={loading}
-                  required
-                />
-              </Form.Group>
-
-              <Form.Group className="mb-3" controlId="inputDocumento">
-                <Form.Label>Número de documento</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="documento"
-                  value={form.documento}
-                  onChange={handleChange}
-                  disabled={loading}
-                  required
-                />
-              </Form.Group>
-
-              <Form.Group className="mb-4" controlId="inputFechaNacimiento">
-                <Form.Label>Fecha de nacimiento</Form.Label>
-                <Form.Control
-                  type="date"
-                  name="fechaNacimiento"
-                  value={form.fechaNacimiento}
-                  onChange={handleChange}
-                  disabled={loading}
-                  required
-                />
-              </Form.Group>
-
+             <Form.Group className="mb-3" controlId="inputDocumento">
+              <Form.Label>Número de documento</Form.Label>
+              <Form.Control
+                type="text"
+                name="NroDocumento"
+                value={form.NroDocumento}
+                onChange={handleChange}
+                disabled={loading}
+                required
+              />
+            </Form.Group>
               <div className="d-grid mb-3">
                 <Button variant="primary" type="submit" disabled={loading}>
                   {loading ? 'Verificando…' : 'Verificar identidad'}

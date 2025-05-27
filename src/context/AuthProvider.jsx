@@ -19,26 +19,34 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const navigate              = useNavigate();
 
-  // Al montar, suscríbete al estado de sesión de Firebase
+   // Recuperar token de localStorage al montar
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async fbUser => {
       if (fbUser) {
-        // Si ya estás logueado con Google, podrías sincronizarlo con tu backend
         setUser({ email: fbUser.email, displayName: fbUser.displayName });
       } else {
-        setUser(null);
+        // Verificá si hay token guardado
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+          setUser({ token });
+        } else {
+          setUser(null);
+        }
       }
       setLoading(false);
     });
     return unsubscribe;
   }, []);
 
-  // 1) Login tradicional contra tu endpoint /Login/Login
+  // 1) Login tradicional
   const login = async ({ email, password }) => {
-    // Llamas al endpoint REST
     const data = await apiLogin({ email, password });
-    // data es lo que devuelve tu backend: { error:false, data:{ returnToken, email, ... } }
-    setUser(data); 
+    if (data && data.token) {
+      localStorage.setItem('auth_token', data.token);   // GUARDA el token
+      setUser(data); // o setUser({ email: data.email, token: data.token })
+    } else {
+      throw new Error('Login fallido');
+    }
     return data;
   };
 
@@ -55,6 +63,7 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     await firebaseSignOut(auth);
     setUser(null);
+    localStorage.removeItem('auth_token'); // BORRA el token
     navigate('/login', { replace: true });
   };
 

@@ -16,8 +16,9 @@ const api = axios.create({
  * @returns {Promise<Object>} datos del usuario (sin token)
  */
 export async function login({ email, password }) {
-  const response = await api.post('/Login/Login', { email, password });
-  return response.data.data;
+  const response = await api.post('/Auth/login', { email, password });
+  console.log('RESPONSE DEL LOGIN:', response.data);
+  return { token: response.data.data.token };
 }
 
 /**
@@ -90,7 +91,7 @@ export async function createProduct({ tenantId, nombre, precio, requiereVEAI }) 
  * @returns {Promise<Array>} lista de productos con campos id, nombre, costoPuntos, edadMinima
  */
 export async function getCatalog() {
-  const response = await api.get('/catalog'); // ajusta la ruta según tu API
+  const response = await api.get('/catalog'); 
   return response.data;
 }
 
@@ -119,11 +120,11 @@ export async function updateFuelPrice({ productId, nuevoPrecio }) {
 /*--------------------------------VERIFICACION DE EDAD--------------------------------*/
 /**
  * Verifica la identidad y edad del usuario.
- * @param {{ nombre: string, documento: string, fechaNacimiento: string }} data
+ * @param {{ NroDocumento: string }} data
  * @returns {Promise<Object>}
  */
 export async function verifyIdentity(data) {
-  const response = await api.post('/verify-identity', data);
+  const response = await api.post('/VEAI', data);
   return response.data;
 }
 
@@ -156,5 +157,17 @@ export async function getHistory() {
   const response = await api.get('/points/history');
   return response.data;
 }
+
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('auth_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+    console.log('Token agregado al header:', token);
+  }
+  else {
+    console.log('No hay token para este request');
+  }
+  return config;
+});
 
 export default api;
