@@ -8,7 +8,14 @@ export default defineConfig({
       // Permite que los pop-ups cierren la ventana
       'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
       // Opcionalmente, también define COEP para recursos cargados
-      'Cross-Origin-Embedder-Policy': 'unsafe-none'
+      'Cross-Origin-Embedder-Policy': 'unsafe-none',
+      host: '0.0.0.0', // Esto vincula a todas las interfaces de red disponibles
+      port: 3000,
+      https: true,
+      strictPort: true,
+      hmr: {
+        host: 'petrobras.app.servipuntos.local', // Para hot module replacement
+      },
     }
   }
 })

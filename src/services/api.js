@@ -75,6 +75,15 @@ export async function createStation({ tenantId, latitud, longitud }) {
   return response.data;
 }
 
+/**
+ * Obtiene la lista de estaciones 
+ * @returns {Promise<Array>} listado de estaciones con id, name, latitud, longitud, address, etc.
+ */
+export async function getBranches() {
+  const response = await api.get('/Branch');
+  return response.data;
+}
+
 /*--------------------------------PRODUCTO--------------------------------*/
 /**
  * Crea un producto en el catálogo de un tenant.
