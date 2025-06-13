@@ -129,7 +129,7 @@ export async function updateFuelPrice({ productId, nuevoPrecio }) {
 /*--------------------------------VERIFICACION DE EDAD--------------------------------*/
 /**
  * Verifica la identidad y edad del usuario.
- * @param {{ NroDocumento: string }} data
+ * @param {{ documentNumber: string }} data
  * @returns {Promise<Object>}
  */
 export async function verifyIdentity(data) {

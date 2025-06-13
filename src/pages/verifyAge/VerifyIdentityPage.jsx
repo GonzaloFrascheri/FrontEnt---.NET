@@ -9,7 +9,7 @@ export default function VerifyIdentityPage() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    NroDocumento: '',
+    documentNumber: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -56,8 +56,8 @@ export default function VerifyIdentityPage() {
               <Form.Label>Número de documento</Form.Label>
               <Form.Control
                 type="text"
-                name="NroDocumento"
-                value={form.NroDocumento}
+                name="documentNumber"
+                value={form.documentNumber}
                 onChange={handleChange}
                 disabled={loading}
                 required
