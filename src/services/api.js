@@ -13,7 +13,7 @@ const api = axios.create({
 /**
  * Llama al endpoint de login
  * @param {{ email: string, password: string }} credentials
- * @returns {Promise<Object>} datos del usuario (sin token)
+ * @returns {Promise<Object>}
  */
 export async function login({ email, password }) {
   const response = await api.post('/Auth/login', { email, password });
@@ -23,12 +23,20 @@ export async function login({ email, password }) {
 
 /**
  * Llama al endpoint de registro
- * @param {{ nombre: string, apellido: string, email: string, password: string }} userData
- * @returns {Promise<Object>} datos del usuario creado
+ * @param {{ email: string, password: string, name: string}} userData
+ * @returns {Promise<{ error: boolean, data: { token: string }, message: string }>} Respuesta de la API
  */
-export async function register({ nombre, apellido, email, password }) {
-  const response = await api.post('/auth/register', { nombre, apellido, email, password });
-  return response.data;
+export async function register({ name, email, password }) {
+  try {
+    const response = await api.post('/Auth/signup', { name, email, password });
+    return response.data;
+  } catch (error) {
+    // Si la respuesta tiene data y message, mostralo
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Registro fallido');
+  }
 }
 
 

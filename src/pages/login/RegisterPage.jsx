@@ -1,9 +1,9 @@
 import { useState } from 'react';
+import { register } from '../../services/api';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
-    nombre: '',
-    apellido: '',
+    name: '',
     email: '',
     password: ''
   });
@@ -13,10 +13,17 @@ export default function RegisterPage() {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
-    console.log('Datos de registro:', form);
-    // aquí luego llamarás a tu API de registro
+    try {
+      const res = await register(form);
+      // Aquí podrías manejar lo que devuelve tu API (token, mensaje, etc.)
+      console.log('Respuesta del backend:', res);
+      // Redirecciona o muestra mensaje de éxito
+    } catch (err) {
+      // Manejar error, por ejemplo, mostrar mensaje
+      console.error('Error en el registro:', err);
+    }
   };
 
   return (
@@ -25,22 +32,11 @@ export default function RegisterPage() {
       <form onSubmit={handleSubmit} className="auth-card__form">
         <label className="auth-card__label">
           <input
-            name="nombre"
+            name="name"
             type="text"
             className="auth-card__input"
             placeholder='Nombre'
-            value={form.nombre}
-            onChange={handleChange}
-            required
-          />
-        </label>
-        <label className="auth-card__label">
-          <input
-            name="apellido"
-            type="text"
-            className="auth-card__input"
-            placeholder='Apellido'
-            value={form.apellido}
+            value={form.name}
             onChange={handleChange}
             required
           />
