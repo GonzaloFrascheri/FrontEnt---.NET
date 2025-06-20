@@ -4,11 +4,9 @@ import { Navbar, Container, Nav, Button } from 'react-bootstrap';
 import { BoxArrowRight, PersonFillGear } from 'react-bootstrap-icons';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { PointsContext } from '../context/PointsContext';
 
 export default function NavBar() {
-  const { user, logout } = useContext(AuthContext);
-  const { balance }      = useContext(PointsContext);
+  const { user, logout, userData } = useContext(AuthContext);
 
   return (
     <Navbar bg="dark" variant="dark" expand="md" className="px-3 mb-4">
@@ -25,7 +23,7 @@ export default function NavBar() {
           </span>
 
           <Nav.Link as={Link} to="/balance" className="text-white d-flex align-items-center">
-            Puntos: <strong className="ms-1">{balance}</strong>
+            Puntos: <strong className="ms-1">{userData?.pointBalance}</strong>
           </Nav.Link>
         </Nav>
 
