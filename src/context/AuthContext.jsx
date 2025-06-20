@@ -5,13 +5,20 @@ export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
     // Leer el token desde localStorage si existe (persistencia al refrescar)
     const token = localStorage.getItem('auth_token');
+    const userDataStr = localStorage.getItem('user_data');
     if (token) {
       // Si querés, decodificá el token para sacar info del usuario, si no solo setear que está logueado
       setUser({ token });
+    }
+
+    if (userDataStr) {
+      const data = JSON.parse(userDataStr);
+      setUserData(data);
     }
   }, []);
 
@@ -32,7 +39,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, userData, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

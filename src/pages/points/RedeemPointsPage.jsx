@@ -1,18 +1,16 @@
 // src/pages/points/RedeemPointsPage.jsx
 import React, { useState, useEffect, useContext } from 'react';
-import { getCatalog, redeemProduct } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
 import { Button, Spinner, Alert, Form } from 'react-bootstrap';
 
 export default function RedeemPointsPage() {
-  const { user } = useContext(AuthContext);
+  const { user, userData } = useContext(AuthContext);
 
   const [catalog, setCatalog]         = useState([]);
   const [selectedId, setSelectedId]   = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [userPoints, setUserPoints]   = useState(user.puntos || 0);
 
   const [loading, setLoading]         = useState(false);
   const [error, setError]             = useState('');
@@ -41,7 +39,7 @@ export default function RedeemPointsPage() {
       setError('Selecciona un producto.');
       return;
     }
-    if (userPoints < selectedProduct.costoPuntos) {
+    if (userData.pointBalance < selectedProduct.costoPuntos) {
       setError('Puntos insuficientes.');
       return;
     }
@@ -59,7 +57,6 @@ export default function RedeemPointsPage() {
         ts: Date.now()
       };
       setQrValue(JSON.stringify(fakePayload));
-      setUserPoints(prev => prev - selectedProduct.costoPuntos);
       setError('');
     } catch {
       setError('Error al canjear.');
@@ -97,7 +94,7 @@ export default function RedeemPointsPage() {
         <div className="card-body">
           <h4 className="card-title text-center mb-4">Canje de Puntos</h4>
           <p className="text-center mb-3">
-            Tienes <strong>{userPoints}</strong> puntos disponibles.
+            Tienes <strong>{userData.pointBalance}</strong> puntos disponibles.
           </p>
 
           {error && <Alert variant="danger">{error}</Alert>}

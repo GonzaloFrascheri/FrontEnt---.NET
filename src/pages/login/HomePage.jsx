@@ -24,6 +24,8 @@ export default function HomePage() {
 
   // ==== Cuenta regresiva ====
   const deadline = new Date('2025-06-30T23:59:59');
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const calcTimeLeft = () => {
     const diff = deadline - new Date();
     if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
@@ -39,7 +41,7 @@ export default function HomePage() {
   useEffect(() => {
     const timer = setInterval(() => setTimeLeft(calcTimeLeft()), 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [calcTimeLeft]);
 
   return (
     <Container fluid className="p-0">

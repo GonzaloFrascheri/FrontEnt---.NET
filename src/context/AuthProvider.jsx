@@ -12,10 +12,11 @@ import {
 } from 'firebase/auth';
 
 // API
-import { login as apiLogin } from '../services/api';
+import { login as apiLogin, getUser } from '../services/api';
 
 export function AuthProvider({ children }) {
   const [user, setUser]       = useState(null);
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate              = useNavigate();
 
@@ -29,6 +30,16 @@ export function AuthProvider({ children }) {
         const token = localStorage.getItem('auth_token');
         if (token) {
           setUser({ token });
+
+          // Intenta obtener datos del usuario
+          try {
+            const userData = await getUser(token);
+            setUserData(userData.data);
+            localStorage.setItem('user_data', JSON.stringify(userData.data)); // Guarda los datos del usuario
+          } catch (error) {
+            console.error('Error al obtener datos del usuario:', error);
+            setUserData(null);
+          }
         } else {
           setUser(null);
         }
@@ -71,7 +82,7 @@ export function AuthProvider({ children }) {
   if (loading) return null;
 
   return (
-    <AuthContext.Provider value={{ user, login, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, userData, login, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );

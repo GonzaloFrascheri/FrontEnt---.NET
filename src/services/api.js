@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
-  withCredentials: true, 
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -17,7 +17,6 @@ const api = axios.create({
  */
 export async function login({ email, password }) {
   const response = await api.post('/Auth/login', { email, password });
-  console.log('RESPONSE DEL LOGIN:', response.data);
   return { token: response.data.data.token };
 }
 
@@ -36,6 +35,22 @@ export async function register({ name, email, password }) {
       throw new Error(error.response.data.message);
     }
     throw new Error('Registro fallido');
+  }
+}
+
+/*--------------------------------USER--------------------------------*/
+/**
+ * Llama al endpoint para obtener el usuario autenticado
+ * @param {{ }}
+ * @returns {Promise<Object>}
+ */
+export async function getUser() {
+  try {
+    const response = await api.get('/Auth/me');
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener el usuario:', error.message);
+    throw new Error('No se pudo obtener el usuario: ', error.message);
   }
 }
 
@@ -84,7 +99,7 @@ export async function createStation({ tenantId, latitud, longitud }) {
 }
 
 /**
- * Obtiene la lista de estaciones 
+ * Obtiene la lista de estaciones
  * @returns {Promise<Array>} listado de estaciones con id, name, latitud, longitud, address, etc.
  */
 export async function getBranches() {
@@ -108,7 +123,7 @@ export async function createProduct({ tenantId, nombre, precio, requiereVEAI }) 
  * @returns {Promise<Array>} lista de productos con campos id, nombre, costoPuntos, edadMinima
  */
 export async function getCatalog() {
-  const response = await api.get('/catalog'); 
+  const response = await api.get('/catalog');
   return response.data;
 }
 
@@ -179,11 +194,8 @@ api.interceptors.request.use(config => {
   const token = localStorage.getItem('auth_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
-    console.log('Token agregado al header:', token);
   }
-  else {
-    console.log('No hay token para este request');
-  }
+
   return config;
 });
 
