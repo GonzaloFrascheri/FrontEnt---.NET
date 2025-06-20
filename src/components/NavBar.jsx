@@ -23,7 +23,7 @@ export default function NavBar() {
           </span>
 
           <Nav.Link as={Link} to="/balance" className="text-white d-flex align-items-center">
-            Puntos: <strong className="ms-1">{userData.pointBalance}</strong>
+            Puntos: <strong className="ms-1">{userData?.pointBalance}</strong>
           </Nav.Link>
         </Nav>
 

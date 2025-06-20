@@ -166,8 +166,8 @@ export async function verifyIdentity(data) {
  * @returns {Promise<{ nombre:string, apellido:string, email:string }>}
  */
 export async function getProfile() {
-  const response = await api.get('/auth/me');
-  return response.data;
+  const response = await api.get('/auth/Me');
+  return response.data.data;
 }
 
 /**

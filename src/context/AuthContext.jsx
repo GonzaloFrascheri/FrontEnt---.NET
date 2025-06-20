@@ -24,6 +24,7 @@ export function AuthProvider({ children }) {
 
   const login = async (creds) => {
     localStorage.removeItem('auth_token'); // Limpia antes
+    localStorage.removeItem('user_data');
     const token = await apiLogin(creds);
     if (token) {
       localStorage.setItem('auth_token', token);
