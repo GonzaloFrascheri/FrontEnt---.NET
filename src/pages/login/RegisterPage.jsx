@@ -1,7 +1,8 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { register, getTenants } from '../../services/api';
+import { register } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
+import { Alert, Spinner } from 'react-bootstrap';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -9,6 +10,7 @@ export default function RegisterPage() {
     email: '',
     password: ''
   });
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
@@ -20,26 +22,31 @@ export default function RegisterPage() {
   };
 
   const handleSubmit = async e => {
-    
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setSuccess('');
     try {
-      const res = await register(form); // asume que el backend acepta tenantName
+      const res = await register(form);
       if (res.error) {
         setError(res.message || 'No se pudo registrar');
+        setLoading(false);
         return;
       }
       if (res.data && res.data.token) {
+        // Login automático si hay token
         localStorage.setItem('auth_token', res.data.token);
         setUser?.({ token: res.data.token, email: form.email, name: form.name });
         setSuccess('¡Registro exitoso! Redirigiendo...');
         setTimeout(() => navigate('/', { replace: true }), 1200);
       } else {
         setSuccess('¡Registro exitoso! Ahora puedes iniciar sesión.');
-        setTimeout(() => navigate('/login', { replace: true }), 1200);
+        setTimeout(() => navigate('/login', { replace: true }), 2000);
       }
     } catch (err) {
       setError(err.message || 'Error en el registro');
-      console.error('Error en el registro:', err);
     }
+    setLoading(false);
   };
 
   return (
@@ -79,11 +86,11 @@ export default function RegisterPage() {
             required
           />
         </label>
-        <button type="submit" className="auth-card__button">
-          Crear cuenta
+        <button type="submit" className="auth-card__button" disabled={loading}>
+          {loading ? <Spinner animation="border" size="sm" /> : "Crear cuenta"}
         </button>
-        {error && <div className="alert alert-danger mt-3">{error}</div>}
-        {success && <div className="alert alert-success mt-3">{success}</div>}
+        {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
+        {success && <Alert variant="success" className="mt-3">{success}</Alert>}
       </form>
     </div>
   );
