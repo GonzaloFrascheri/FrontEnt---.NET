@@ -163,8 +163,9 @@ export async function createProduct({ tenantId, nombre, precio, requiereVEAI }) 
  * @returns {Promise<Array>} lista de productos con campos id, nombre, costoPuntos, edadMinima
  */
 export async function getCatalog() {
-  const response = await api.get('/catalog');
-  return response.data;
+  const response = await api.get('/Product');
+
+  return response.data.data;
 }
 
 /**
