@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { login as apiLogin } from '../services/api';
+import { login as apiLogin, getUser } from '../services/api';
 
 export const AuthContext = createContext();
 
@@ -11,6 +11,7 @@ export function AuthProvider({ children }) {
     // Leer el token desde localStorage si existe (persistencia al refrescar)
     const token = localStorage.getItem('auth_token');
     const userDataStr = localStorage.getItem('user_data');
+
     if (token) {
       // Si querés, decodificá el token para sacar info del usuario, si no solo setear que está logueado
       setUser({ token });
@@ -23,10 +24,8 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async ({ email, password, tenantName }) => {
-    console.log("CONTEXT LOGIN recibió:", { email, password, tenantName });
     // 1) Limpio cualquier token previo
     localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_data');
 
     const { token } = await apiLogin({ email, password, tenantName });
     if (token) {
@@ -43,8 +42,19 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const getUserData = async () => {
+    if (!userData) {
+      const user = await getUser();
+      setUserData(user.data);
+      localStorage.setItem('user_data', JSON.stringify(user.data));
+      return user.data;
+    }
+
+    return userData;
+  }
+
   return (
-    <AuthContext.Provider value={{ user, setUser, userData, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, getUserData, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
