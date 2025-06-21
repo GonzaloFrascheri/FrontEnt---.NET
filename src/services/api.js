@@ -214,12 +214,24 @@ export async function updateProfile(data) {
 
 /*--------------------------------TRANSACCIONES--------------------------------*/
 /**
- * Obtiene el historial de transacciones del usuario logueado.
- * @returns {Promise<Array<{ id: number, fecha: string, descripcion: string, puntos: number }>>}
+ * Obtiene el historial de transacciones del usuario logueado (real)
+ * @returns {Promise<Array>} listado de transacciones reales
  */
-export async function getHistory() {
-  const response = await api.get('/points/history');
-  return response.data;
+export async function getTransactionHistory() {
+  const response = await api.get('/Transaction/history');
+  // response.data = { error, data: [ ... ], message }
+  return response.data.data;
+}
+
+/**
+ * Obtiene los items de una transacción (detalle)
+ * @param {number} transactionId
+ * @returns {Promise<Array>} items de la transacción
+ */
+export async function getTransactionItems(transactionId) {
+  const response = await api.get(`/Transaction/${transactionId}/items`);
+  // response.data = { error, data: [ ... ], message }
+  return response.data.data;
 }
 
 api.interceptors.request.use(config => {
