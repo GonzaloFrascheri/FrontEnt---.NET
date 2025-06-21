@@ -1,9 +1,10 @@
 // src/pages/catalog/CatalogPage.jsx
-import React, { useState, useEffect } from 'react';
-import { getBranches, getCatalog } from '../../services/api';
-import { Spinner, Card, Row, Col, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { getBranches, getCatalogWithStock } from '../../services/api';
+import { Spinner, Row, Dropdown } from 'react-bootstrap';
 import { findNearestBranch } from '../../helpers/utils';
+import Product from '../../components/Product';
+import { AuthContext } from '../../context/AuthContext';
 
 export default function CatalogPage() {
   const [catalog, setCatalog] = useState([]);
@@ -11,31 +12,16 @@ export default function CatalogPage() {
   const [branches, setBranches] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
+  const [userData, setUserData] = useState(null);
+
+  const { getUserData } = useContext(AuthContext);
 
   const getUserLocationByIP = async () => {
-    try {
-      const response = await fetch('https://ipapi.co/json/');
-      const data = await response.json();
-
-      if (data.latitude && data.longitude) {
-        console.log('Ubicación obtenida por IP:', data);
-        setUserLocation({
-          lat: parseFloat(data.latitude),
-          lng: parseFloat(data.longitude),
-          method: 'ip'
-        });
-        return true;
-      }
-    } catch (error) {
-      console.warn('Error obteniendo ubicación por IP:', error);
-    }
-
     try {
       const response = await fetch('http://ip-api.com/json/');
       const data = await response.json();
 
       if (data.status === 'success' && data.lat && data.lon) {
-        console.log('Ubicación obtenida por IP (backup):', data);
         setUserLocation({
           lat: parseFloat(data.lat),
           lng: parseFloat(data.lon),
@@ -76,42 +62,53 @@ export default function CatalogPage() {
         setSelectedBranch(firstBranch);
       }
     }
+    setLoading(false);
   }, [userLocation, branches]);
 
   useEffect(() => {
-    getCatalog().then(data => setCatalog(data));
+    if (selectedBranch) {
+      getCatalogWithStock(selectedBranch.id).then(data => {
+        setCatalog(data)
+      });
+    }
+
     setLoading(false);
   }, [selectedBranch]);
+
+  useEffect(() => {
+    getUserData().then(data => {
+      setUserData(data)
+    })
+  }, [getUserData])
 
   if (loading) return <Spinner animation="border" className="d-block mx-auto my-5" />;
 
   return (
     <div className="p-4">
-      <h2 className="mb-4">Productos</h2>
 
+      <div className="mb-4 w-100 d-flex justify-content-between align-items-center">
+        <h2 className="mb-4">Productos</h2>
+
+        <Dropdown>
+          <Dropdown.Toggle>
+            {selectedBranch?.address}
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            {branches.map(branch => (
+              <Dropdown.Item key={branch.id} value={branch.id} onClick={() => {
+                setSelectedBranch(branch)
+              }}>
+                {branch.address}
+              </Dropdown.Item>
+            ))}
+          </Dropdown.Menu>
+        </Dropdown>
+      </div>
 
 
       <Row xs={1} sm={2} md={3} lg={3} className="g-4">
         {catalog.map(item => (
-          <Col key={item.id}>
-            <Card className="h-100 shadow-sm text-center">
-              <div className="display-1 mt-4">{item.icon}</div>
-              <Card.Body className="d-flex flex-column">
-                <Card.Title>{item.nombre}</Card.Title>
-                <Card.Text className="flex-grow-1">
-                  {item.descripcion}
-                </Card.Text>
-                <Button
-                  as={Link}
-                  to="/redeem"
-                  state={{ preselect: item.id }}
-                  variant="primary"
-                >
-                  Canjear ({item.costoPuntos}pts)
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
+          <Product key={item.id} item={item} isUserVerified={userData?.isVerified} />
         ))}
       </Row>
     </div>

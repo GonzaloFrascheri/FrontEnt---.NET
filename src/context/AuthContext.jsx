@@ -39,7 +39,9 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_data');
     setUser(null);
+    setUserData(null);
   };
 
   const getUserData = async () => {
