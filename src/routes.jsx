@@ -16,7 +16,7 @@ import HistoryPage from './pages/history/HistoryPage';
 import StationsMapPage from './pages/map/StationsMapPage';
 import BalancePage from './pages/balance/BalancePage';
 
-import { AuthProvider } from './context/AuthProvider';
+import { AuthProvider } from './context/AuthContext';
 import { AuthContext } from './context/AuthContext';
 import ProtectedLayout from './components/ProtectedLayout';
 

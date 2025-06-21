@@ -22,13 +22,17 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const login = async (creds) => {
-    localStorage.removeItem('auth_token'); // Limpia antes
+  const login = async ({ email, password, tenantName }) => {
+    console.log("CONTEXT LOGIN recibió:", { email, password, tenantName });
+    // 1) Limpio cualquier token previo
+    localStorage.removeItem('auth_token');
     localStorage.removeItem('user_data');
-    const token = await apiLogin(creds);
+
+    const { token } = await apiLogin({ email, password, tenantName });
     if (token) {
       localStorage.setItem('auth_token', token);
       setUser({ token });
+      return token;
     } else {
       throw new Error('Login fallido');
     }

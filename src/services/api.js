@@ -9,14 +9,36 @@ const api = axios.create({
   },
 });
 
+// 🛠️ Interceptor para debug: imprime URL, método y headers
+api.interceptors.request.use(config => {
+  console.log(
+    `%c[API Request] %c${config.method.toUpperCase()} %c${config.url}`,
+    'color: gray;',
+    'color: blue;',
+    'color: green;',
+    config.headers
+  );
+  return config;
+});
+
 /*--------------------------------LOGIN--------------------------------*/
 /**
  * Llama al endpoint de login
- * @param {{ email: string, password: string }} credentials
- * @returns {Promise<Object>}
+ * @param {{ email: string, password: string, tenantName: string }}
+ * @returns {{ token:string }}
  */
-export async function login({ email, password }) {
-  const response = await api.post('/Auth/login', { email, password });
+export async function login({ email, password, tenantName }) {
+  console.log("API LOGIN recibió:", { email, password, tenantName });
+  const response = await api.post(
+    '/Auth/login',
+    { email, password },
+    {
+      headers: {
+        'Content-Type': 'application/json', // fuerza el default!
+        'X-Tenant-Name': tenantName,
+      }
+    }
+  );
   return { token: response.data.data.token };
 }
 
@@ -78,12 +100,22 @@ export async function getTenantById(id) {
 }
 
 /**
- * Obtiene el listado completo de tenants (cadenas).
+ * Obtiene el listado completo de tenants (cadenas) desde public/tenant
  * @returns {Promise<Array<{ id: number, name: string, tenantId: string }>>}
  */
 export async function getTenants() {
-  const { data } = await api.get('/Tenant')
-  return data
+  // Llama a: GET http://localhost:5162/api/public/tenant
+  const response = await api.get('/public/tenant');
+
+  // response.data === { error, data: [ { name } ], message }
+  const list = response.data.data;
+
+  // Mapea para tener id, name y tenantId (igual al name)
+  return list.map((t, idx) => ({
+    id: idx,
+    name: t.name,
+    tenantId: t.name
+  }));
 }
 
 
