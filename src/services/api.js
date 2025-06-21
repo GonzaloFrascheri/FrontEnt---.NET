@@ -24,19 +24,13 @@ api.interceptors.request.use(config => {
 /*--------------------------------LOGIN--------------------------------*/
 /**
  * Llama al endpoint de login
- * @param {{ email: string, password: string, tenantName: string }}
+ * @param {{ email: string, password: string }}
  * @returns {{ token:string }}
  */
-export async function login({ email, password, tenantName }) {
+export async function login({ email, password }) {
   const response = await api.post(
     '/Auth/login',
-    { email, password },
-    {
-      headers: {
-        'Content-Type': 'application/json', // fuerza el default!
-        'X-Tenant-Name': tenantName,
-      }
-    }
+    { email, password }
   );
   return { token: response.data.data.token };
 }

@@ -1,12 +1,8 @@
-// src/components/AuthForm.jsx
 import { useState } from 'react';
 import googleLogo from '../assets/Google.png';
 import { Link } from 'react-router-dom';
 
 export default function AuthForm({
-  tenants,
-  selectedTenant,
-  onTenantChange,
   onSubmit,
   googleLogin
 }) {
@@ -15,31 +11,13 @@ export default function AuthForm({
 
   const handleSubmit = e => {
     e.preventDefault();
-    console.log("SUBMIT", { email, password, selectedTenant });
-    onSubmit({ email, password, tenantName: selectedTenant });
+    onSubmit({ email, password });
   };
 
   return (
     <div className="auth-card">
       <h2 className="auth-card__title">Login</h2>
       <form onSubmit={handleSubmit} className="auth-card__form">
-        {/* ▼ NUEVO: selector de tenant ▼ */}
-        <label className="auth-card__label">
-          <select
-            value={selectedTenant}
-            onChange={e => onTenantChange(e.target.value)}
-            required
-            className="auth-card__input"
-          >
-            <option value="">Selecciona tu tenant</option>
-            {tenants.map(t => (
-              <option key={t.id} value={t.tenantId}>
-                {t.name}
-              </option>
-            ))}
-          </select>
-        </label>
-
         <label className="auth-card__label">
           <input
             type="email"
@@ -50,23 +28,20 @@ export default function AuthForm({
             required
           />
         </label>
-
         <label className="auth-card__label">
           <input
             type="password"
             className="auth-card__input"
-            placeholder="Contraseña"
+            placeholder='Contraseña'
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
           />
         </label>
-
         <button type="submit" className="auth-card__button">
           Ingresar
         </button>
       </form>
-
       <div className="auth-card__divider">o</div>
       <p>
         ¿No tienes cuenta?{' '}

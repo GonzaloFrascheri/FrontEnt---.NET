@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { register } from '../../services/api';
+import { useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { register, getTenants } from '../../services/api';
+import { AuthContext } from '../../context/AuthContext';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -7,6 +9,10 @@ export default function RegisterPage() {
     email: '',
     password: ''
   });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
+  const { setUser } = useContext(AuthContext);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -14,14 +20,24 @@ export default function RegisterPage() {
   };
 
   const handleSubmit = async e => {
-    e.preventDefault();
+    
     try {
-      const res = await register(form);
-      // Aquí podrías manejar lo que devuelve tu API (token, mensaje, etc.)
-      console.log('Respuesta del backend:', res);
-      // Redirecciona o muestra mensaje de éxito
+      const res = await register(form); // asume que el backend acepta tenantName
+      if (res.error) {
+        setError(res.message || 'No se pudo registrar');
+        return;
+      }
+      if (res.data && res.data.token) {
+        localStorage.setItem('auth_token', res.data.token);
+        setUser?.({ token: res.data.token, email: form.email, name: form.name });
+        setSuccess('¡Registro exitoso! Redirigiendo...');
+        setTimeout(() => navigate('/', { replace: true }), 1200);
+      } else {
+        setSuccess('¡Registro exitoso! Ahora puedes iniciar sesión.');
+        setTimeout(() => navigate('/login', { replace: true }), 1200);
+      }
     } catch (err) {
-      // Manejar error, por ejemplo, mostrar mensaje
+      setError(err.message || 'Error en el registro');
       console.error('Error en el registro:', err);
     }
   };
@@ -66,6 +82,8 @@ export default function RegisterPage() {
         <button type="submit" className="auth-card__button">
           Crear cuenta
         </button>
+        {error && <div className="alert alert-danger mt-3">{error}</div>}
+        {success && <div className="alert alert-success mt-3">{success}</div>}
       </form>
     </div>
   );
