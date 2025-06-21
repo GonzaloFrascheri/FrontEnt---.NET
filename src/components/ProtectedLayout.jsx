@@ -41,7 +41,8 @@ export default function ProtectedLayout() {
       title: 'Estaciones',
       icon: <FuelPump className="me-2" />,
       items: [
-        { label: 'Mapa de Estaciones', to: '/stations/map' }
+        { label: 'Mapa de Estaciones', to: '/stations/map' },
+        { label: 'Precio Combustibles', to: '/fuels' }
       ]
     },
     {

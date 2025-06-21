@@ -4,34 +4,31 @@ import { login as apiLogin, getUser } from '../services/api';
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [userData, setUserData] = useState(null);
+  const [user, setUser] = useState(null);      // token y datos mínimos
+  const [userData, setUserData] = useState(null); // datos extendidos: email, branchId, etc.
+  const [loading, setLoading] = useState(true);
 
+  // Al iniciar (o refrescar), cargá token y perfil
   useEffect(() => {
-    // Leer el token desde localStorage si existe (persistencia al refrescar)
     const token = localStorage.getItem('auth_token');
-    const userDataStr = localStorage.getItem('user_data');
 
     if (token) {
-      // Si querés, decodificá el token para sacar info del usuario, si no solo setear que está logueado
       setUser({ token });
-    }
-
-    if (userDataStr) {
-      const data = JSON.parse(userDataStr);
-      setUserData(data);
+    } else {
+      setLoading(false);
     }
   }, []);
 
-  const login = async ({ email, password, tenantName }) => {
-    // 1) Limpio cualquier token previo
+  // Cuando el usuario hace login manual
+  const login = async ({ email, password }) => {
     localStorage.removeItem('auth_token');
-
-    const { token } = await apiLogin({ email, password, tenantName });
+    setUser(null);
+    setUserData(null);
+    const { token } = await apiLogin({ email, password });
     if (token) {
       localStorage.setItem('auth_token', token);
       setUser({ token });
-      return token;
+      getUserData();
     } else {
       throw new Error('Login fallido');
     }
@@ -56,7 +53,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, setUser, getUserData, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, getUserData, setUserData, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

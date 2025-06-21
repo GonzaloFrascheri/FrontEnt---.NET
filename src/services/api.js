@@ -192,6 +192,21 @@ export async function updateFuelPrice({ productId, nuevoPrecio }) {
   return response.data;
 }
 
+/**
+ * Obtiene los precios de combustibles para una sucursal.
+ * @param {number|string} branchId
+ * @returns {Promise<Array>} Array de precios (id, fuelType, price, etc)
+ */
+export async function getFuelPrices(branchId) {
+  const response = await api.get(`/Fuel/${branchId}/prices`);
+  // Maneja el error según tu backend
+  if (response.data && response.data.error === false) {
+    return response.data.data;
+  } else {
+    // Podés tirar el mensaje de error que venga del backend
+    throw new Error(response.data?.message || "No se pudieron obtener los precios");
+  }
+}
 
 /*--------------------------------VERIFICACION DE EDAD--------------------------------*/
 /**
@@ -205,14 +220,6 @@ export async function verifyIdentity(data) {
 }
 
 /*--------------------------------PERFIL DE USUARIO--------------------------------*/
-/**
- * Obtiene los datos del perfil del usuario autenticado.
- * @returns {Promise<{ nombre:string, apellido:string, email:string }>}
- */
-export async function getProfile() {
-  const response = await api.get('/auth/Me');
-  return response.data.data;
-}
 
 /**
  * Actualiza el perfil del usuario.
