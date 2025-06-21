@@ -1,38 +1,40 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { login as apiLogin } from '../services/api';
+import { login as apiLogin, getProfile } from '../services/api';
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [userData, setUserData] = useState(null);
+  const [user, setUser] = useState(null);      // token y datos mínimos
+  const [userData, setUserData] = useState(null); // datos extendidos: email, branchId, etc.
+  const [loading, setLoading] = useState(true);
 
+  // Al iniciar (o refrescar), cargá token y perfil
   useEffect(() => {
-    // Leer el token desde localStorage si existe (persistencia al refrescar)
     const token = localStorage.getItem('auth_token');
-    const userDataStr = localStorage.getItem('user_data');
     if (token) {
-      // Si querés, decodificá el token para sacar info del usuario, si no solo setear que está logueado
       setUser({ token });
-    }
-
-    if (userDataStr) {
-      const data = JSON.parse(userDataStr);
-      setUserData(data);
+      // Siempre traigo el perfil aunque esté en LS (así refresca)
+      getProfile()
+        .then(data => setUserData(data))
+        .catch(() => setUserData(null))
+        .finally(() => setLoading(false));
+    } else {
+      setLoading(false);
     }
   }, []);
 
-  const login = async ({ email, password, tenantName }) => {
-    console.log("CONTEXT LOGIN recibió:", { email, password, tenantName });
-    // 1) Limpio cualquier token previo
+  // Cuando el usuario hace login manual
+  const login = async ({ email, password }) => {
     localStorage.removeItem('auth_token');
-    localStorage.removeItem('user_data');
-
-    const { token } = await apiLogin({ email, password, tenantName });
+    setUser(null);
+    setUserData(null);
+    const { token } = await apiLogin({ email, password });
     if (token) {
       localStorage.setItem('auth_token', token);
       setUser({ token });
-      return token;
+      // Trae el perfil extendido
+      const profile = await getProfile();
+      setUserData(profile);
     } else {
       throw new Error('Login fallido');
     }
@@ -41,10 +43,11 @@ export function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem('auth_token');
     setUser(null);
+    setUserData(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, userData, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, userData, setUserData, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

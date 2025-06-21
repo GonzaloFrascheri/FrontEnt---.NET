@@ -188,6 +188,21 @@ export async function updateFuelPrice({ productId, nuevoPrecio }) {
   return response.data;
 }
 
+/**
+ * Obtiene los precios de combustibles para una sucursal.
+ * @param {number|string} branchId
+ * @returns {Promise<Array>} Array de precios (id, fuelType, price, etc)
+ */
+export async function getFuelPrices(branchId) {
+  const response = await api.get(`/Fuel/${branchId}/prices`);
+  // Maneja el error según tu backend
+  if (response.data && response.data.error === false) {
+    return response.data.data;
+  } else {
+    // Podés tirar el mensaje de error que venga del backend
+    throw new Error(response.data?.message || "No se pudieron obtener los precios");
+  }
+}
 
 /*--------------------------------VERIFICACION DE EDAD--------------------------------*/
 /**
