@@ -1,12 +1,22 @@
 // src/components/NavBar.jsx
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Navbar, Container, Nav, Button } from 'react-bootstrap';
 import { BoxArrowRight, PersonFillGear } from 'react-bootstrap-icons';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 export default function NavBar() {
-  const { user, logout, userData } = useContext(AuthContext);
+  const { user, logout, getUserData } = useContext(AuthContext);
+
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      const userData = await getUserData();
+      setUserData(userData);
+    };
+    loadProfile();
+  }, [getUserData]);
 
   return (
     <Navbar bg="dark" variant="dark" expand="md" className="px-3 mb-4">

@@ -216,14 +216,6 @@ export async function verifyIdentity(data) {
 }
 
 /*--------------------------------PERFIL DE USUARIO--------------------------------*/
-/**
- * Obtiene los datos del perfil del usuario autenticado.
- * @returns {Promise<{ nombre:string, apellido:string, email:string }>}
- */
-export async function getProfile() {
-  const response = await api.get('/auth/Me');
-  return response.data.data;
-}
 
 /**
  * Actualiza el perfil del usuario.

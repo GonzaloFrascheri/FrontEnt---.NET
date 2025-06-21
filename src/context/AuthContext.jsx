@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { login as apiLogin, getProfile } from '../services/api';
+import { login as apiLogin, getUser } from '../services/api';
 
 export const AuthContext = createContext();
 
@@ -11,13 +11,10 @@ export function AuthProvider({ children }) {
   // Al iniciar (o refrescar), cargá token y perfil
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
+    const userDataStr = localStorage.getItem('user_data');
+
     if (token) {
       setUser({ token });
-      // Siempre traigo el perfil aunque esté en LS (así refresca)
-      getProfile()
-        .then(data => setUserData(data))
-        .catch(() => setUserData(null))
-        .finally(() => setLoading(false));
     } else {
       setLoading(false);
     }
@@ -46,8 +43,19 @@ export function AuthProvider({ children }) {
     setUserData(null);
   };
 
+  const getUserData = async () => {
+    if (!userData) {
+      const user = await getUser();
+      setUserData(user.data);
+      localStorage.setItem('user_data', JSON.stringify(user.data));
+      return user.data;
+    }
+
+    return userData;
+  }
+
   return (
-    <AuthContext.Provider value={{ user, setUser, userData, setUserData, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, setUser, getUserData, setUserData, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

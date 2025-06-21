@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
-import { getProfile } from "../../services/api";
 import {
     Container,
     Col,
@@ -10,21 +9,27 @@ import {
 } from "react-bootstrap";
 
 export default function ProfilePage() {
-    const { userData } = useContext(AuthContext);
-    const [profile, setProfile] = useState(userData || null);
-    const [loading, setLoading] = useState(!userData);
+    const { getUserData } = useContext(AuthContext);
+
+    const [profile, setProfile] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!userData) {
-            // Si no hay userData en contexto, lo traigo del backend
-            getProfile()
-                .then(data => setProfile(data))
-                .catch(() => setProfile(null))
-                .finally(() => setLoading(false));
-        } else {
-            setLoading(false);
-        }
-    }, [userData]);
+        const loadProfile = async () => {
+            try {
+                const userData = await getUserData();
+
+                setProfile(userData);
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                setProfile(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadProfile();
+    }, [getUserData]);
 
     if (loading) {
         return (
