@@ -3,10 +3,12 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import AuthForm from '../../components/AuthForm';
 import { AuthContext } from '../../context/AuthContext';
-import { getTenants, login as apiLogin } from '../../services/api';
+import { getTenants, login as apiLogin, googleLoginBackend } from '../../services/api';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../../services/firebase';
 
 export default function LoginPage() {
-  const { user, login: contextLogin, loginWithGoogle } = useContext(AuthContext);
+  const { user, setUser, login: contextLogin, loginWithGoogle } = useContext(AuthContext);
   const [error, setError] = useState('');
   const [tenants, setTenants] = useState([]);
   const [selectedTenant, setSelectedTenant] = useState('');
@@ -49,12 +51,32 @@ export default function LoginPage() {
   }
 };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = async (tenantName) => {
+    if (!tenantName) {
+      setError('Por favor selecciona un tenant');
+      return;
+    }
     try {
-      await loginWithGoogle();
-      navigate('/', { replace: true });
+      const result = await signInWithPopup(auth, googleProvider);
+      const fbUser = result.user;
+      const idToken = await fbUser.getIdToken();
+
+      const data = await googleLoginBackend({
+        idToken,
+        email: fbUser.email,
+        name: fbUser.displayName,
+        tenantName, // <-- no se usa aquí, pero lo enviamos abajo
+      }, tenantName);
+
+      if (data && data.token) {
+        localStorage.setItem('auth_token', data.token);
+        setUser({ token: data.token, email: fbUser.email, name: fbUser.displayName });
+        navigate('/', { replace: true });
+      } else {
+        setError('Login con Google fallido');
+      }
     } catch (err) {
-      console.error(err);
+      console.error("Error al iniciar con Google", err);
       setError('Error al iniciar con Google');
     }
   };
@@ -72,7 +94,7 @@ export default function LoginPage() {
         selectedTenant={selectedTenant}
         onTenantChange={setSelectedTenant}
         onSubmit={handleEmailPassword}
-        googleLogin={handleGoogleLogin}
+        googleLogin={() => handleGoogleLogin(selectedTenant)}
       />
     </>
   );

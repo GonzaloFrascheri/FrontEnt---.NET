@@ -28,7 +28,6 @@ api.interceptors.request.use(config => {
  * @returns {{ token:string }}
  */
 export async function login({ email, password, tenantName }) {
-  console.log("API LOGIN recibió:", { email, password, tenantName });
   const response = await api.post(
     '/Auth/login',
     { email, password },
@@ -59,6 +58,21 @@ export async function register({ name, email, password }) {
     throw new Error('Registro fallido');
   }
 }
+
+/**
+ * Login con Google: envía el idToken, email y name al backend
+ * @param {{ idToken: string, email: string, name: string }}
+ * @returns {Promise<{ token: string }>}
+ */
+export async function googleLoginBackend({ idToken, email, name }, tenantName) {
+  const response = await api.post(
+    '/Auth/google-login',
+    { idToken, email, name },
+    { headers: { 'X-Tenant-Name': tenantName } }
+  );
+  return response.data.data;
+}
+
 
 /*--------------------------------USER--------------------------------*/
 /**
@@ -235,9 +249,22 @@ export async function getTransactionItems(transactionId) {
 }
 
 api.interceptors.request.use(config => {
-  const token = localStorage.getItem('auth_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  // Chequea si la URL es pública y NO debería llevar token
+  if (
+    config.url &&
+    (
+      config.url.includes('/public/tenant') ||
+      config.url.includes('/public/')
+    )
+  ) {
+    // Borra el header Authorization si existe (por si arrastra viejo)
+    delete config.headers.Authorization;
+  } else {
+    // En endpoints privados, agrega el token si existe
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
 
   return config;
