@@ -271,8 +271,15 @@ export async function getTransactionItems(transactionId) {
  * @returns {Promise<Object>} transacción creada
  */
 export async function createTransaction(branchId, productId, quantity) {
-  const response = await api.post('/Transaction', { branchId, productId, quantity });
-  console.log(response.data);
+  const response = await api.post('/Transaction', {
+    branchId,
+    products: [
+      {
+        productId,
+        quantity
+      }
+    ]
+  });
   return response.data.data;
 }
 

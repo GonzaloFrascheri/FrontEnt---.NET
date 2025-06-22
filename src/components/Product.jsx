@@ -6,7 +6,7 @@ import { getLoyaltyProgram } from '../services/api';
 
 import defaultImage from '../assets/default.jpg';
 
-const Product = ({ item, isUserVerified }) => {
+const Product = ({ item, isUserVerified, selectedBranchId, refreshCatalog }) => {
   const [showModal, setShowModal] = useState(false);
   const [loyaltyProgram, setLoyaltyProgram] = useState(null);
 
@@ -63,6 +63,8 @@ const Product = ({ item, isUserVerified }) => {
           handleClose={handleClose}
           item={item}
           loyaltyProgram={loyaltyProgram}
+          selectedBranchId={selectedBranchId}
+          refreshCatalog={refreshCatalog}
         />
       </>
     )

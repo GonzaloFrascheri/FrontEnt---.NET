@@ -52,8 +52,14 @@ export function AuthProvider({ children }) {
     return userData;
   }
 
+  const refreshUserData = async () => {
+    const user = await getUser();
+    setUserData(user.data);
+    localStorage.setItem('user_data', JSON.stringify(user.data));
+  }
+
   return (
-    <AuthContext.Provider value={{ user, setUser, getUserData, setUserData, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, setUser, getUserData, setUserData, login, logout, loading, refreshUserData }}>
       {children}
     </AuthContext.Provider>
   );

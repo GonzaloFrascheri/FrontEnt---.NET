@@ -16,6 +16,15 @@ export default function CatalogPage() {
 
   const { getUserData } = useContext(AuthContext);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const getCatalog = async () => {
+    if (selectedBranch) {
+      const catalog = await getCatalogWithStock(selectedBranch.id);
+      setCatalog(catalog);
+      setLoading(false);
+    }
+  }
+
   const getUserLocationByIP = async () => {
     try {
       const response = await fetch('http://ip-api.com/json/');
@@ -65,14 +74,8 @@ export default function CatalogPage() {
   }, [userLocation, branches]);
 
   useEffect(() => {
-    if (selectedBranch) {
-      getCatalogWithStock(selectedBranch.id).then(data => {
-        setCatalog(data)
-      });
-    }
-
-    setLoading(false);
-  }, [selectedBranch]);
+    getCatalog();
+  }, [getCatalog, selectedBranch]);
 
   useEffect(() => {
     getUserData().then(data => {
@@ -107,7 +110,13 @@ export default function CatalogPage() {
 
       <Row xs={1} sm={2} md={3} lg={3} className="g-4">
         {catalog.filter(item => item.stock > 0).map(item => (
-          <Product key={item.id} item={item} isUserVerified={userData?.isVerified} />
+          <Product
+            key={item.id}
+            item={item}
+            isUserVerified={userData?.isVerified}
+            selectedBranchId={selectedBranch?.id}
+            refreshCatalog={getCatalog}
+          />
         ))}
 
       </Row>
