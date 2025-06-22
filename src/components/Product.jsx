@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, Col, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import defaultImage from '../assets/default.jpg';
 
 const Product = ({ item, isUserVerified }) => {
   if ((!item.ageRestricted) || (item.ageRestricted && isUserVerified)) {
@@ -9,7 +10,7 @@ const Product = ({ item, isUserVerified }) => {
         <Card className="h-100 shadow-sm text-center">
           <div className="display-1 mt-4">
             <img
-              src={item.imageUrl}
+              src={item.imageUrl || defaultImage}
               alt={item.name}
               className="img-fluid"
               style={{
