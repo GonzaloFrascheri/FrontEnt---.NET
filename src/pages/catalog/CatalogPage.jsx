@@ -62,7 +62,6 @@ export default function CatalogPage() {
         setSelectedBranch(firstBranch);
       }
     }
-    setLoading(false);
   }, [userLocation, branches]);
 
   useEffect(() => {

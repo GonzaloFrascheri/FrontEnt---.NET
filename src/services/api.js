@@ -119,6 +119,16 @@ export async function getTenants() {
   }));
 }
 
+/**
+ * Obtiene el programa de fidelidad de un tenant
+ * @param {number} tenantId
+ * @returns {Promise<Object>} programa de fidelidad
+ */
+export async function getLoyaltyProgram() {
+  const response = await api.get(`/LoyaltyProgram`);
+  return response.data.data;
+}
+
 
 /*--------------------------------ESTACION--------------------------------*/
 /**
@@ -250,6 +260,19 @@ export async function getTransactionHistory() {
 export async function getTransactionItems(transactionId) {
   const response = await api.get(`/Transaction/${transactionId}/items`);
   // response.data = { error, data: [ ... ], message }
+  return response.data.data;
+}
+
+/**
+ * Crea una nueva transacción.
+ * @param {number} branchId
+ * @param {number} productId
+ * @param {number} quantity
+ * @returns {Promise<Object>} transacción creada
+ */
+export async function createTransaction(branchId, productId, quantity) {
+  const response = await api.post('/Transaction', { branchId, productId, quantity });
+  console.log(response.data);
   return response.data.data;
 }
 
