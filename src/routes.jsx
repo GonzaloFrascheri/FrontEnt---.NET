@@ -16,6 +16,7 @@ import HistoryPage from './pages/history/HistoryPage';
 import StationsMapPage from './pages/map/StationsMapPage';
 import BalancePage from './pages/balance/BalancePage';
 import FuelsPage from './pages/fuel/FuelsPage';
+import ValidateMagicLinkPage from './pages/login/ValidateMagicLinkPage';
 
 import { AuthProvider } from './context/AuthContext';
 import { AuthContext } from './context/AuthContext';
@@ -36,6 +37,7 @@ export default function AppRoutes() {
         {/* Públicas */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/validate-magic-link" element={<ValidateMagicLinkPage />} />
 
         {/* Protegidas dentro de ProtectedLayout */}
         <Route

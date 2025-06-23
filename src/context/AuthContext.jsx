@@ -11,7 +11,6 @@ export function AuthProvider({ children }) {
   // Al iniciar (o refrescar), cargá token y perfil
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
-    const userDataStr = localStorage.getItem('user_data');
 
     if (token) {
       setUser({ token });
@@ -19,6 +18,12 @@ export function AuthProvider({ children }) {
       setLoading(false);
     }
   }, []);
+
+  // Función para obtener el perfil del usuario
+  const getProfile = async () => {
+    const user = await getUser();
+    return user.data;
+  };
 
   // Cuando el usuario hace login manual
   const login = async ({ email, password }) => {
@@ -37,8 +42,22 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // Login con token (para magic link)
+  const loginWithToken = async ({ token }) => {
+    localStorage.setItem('auth_token', token);
+    setUser({ token });
+    // Trae el perfil extendido
+    try {
+      const profile = await getProfile();
+      setUserData(profile);
+    } catch (error) {
+      console.error('Error obteniendo perfil:', error);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_data');
     setUser(null);
     setUserData(null);
   };
@@ -55,7 +74,16 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, setUser, getUserData, setUserData, login, logout, loading }}>
+    <AuthContext.Provider value={{
+      user,
+      setUser,
+      getUserData,
+      setUserData,
+      login,
+      loginWithToken,
+      logout,
+      loading
+    }}>
       {children}
     </AuthContext.Provider>
   );

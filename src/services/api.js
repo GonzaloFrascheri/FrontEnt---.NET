@@ -67,6 +67,35 @@ export async function googleLoginBackend({ idToken, email, name }, tenantName) {
   return response.data.data;
 }
 
+/**
+ * Envía un email con un link para iniciar sesión
+ * @param {{ email: string }}
+ * @returns {Promise<{ token: string }>}
+ */
+export async function getMagicLink(email) {
+  const response = await api.post('/auth/magic-link', {
+    email
+  });
+  return response.data;
+}
+
+/**
+ * Valida un magic link token
+ * @param {string} token - Token del magic link
+ * @returns {Promise<{ error: boolean, data: { token: string }, message: string }>}
+ */
+export async function validateMagicLink(token) {
+  try {
+    const response = await api.post('/auth/validate-magic-link', { token });
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data) {
+      return error.response.data;
+    }
+    throw new Error('Error al validar el magic link');
+  }
+}
+
 
 /*--------------------------------USER--------------------------------*/
 /**
