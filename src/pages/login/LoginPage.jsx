@@ -2,7 +2,7 @@
 import { Navigate, useNavigate } from 'react-router-dom';
 import AuthForm from '../../components/AuthForm';
 import { AuthContext } from '../../context/AuthContext';
-import { login as apiLogin, googleLoginBackend } from '../../services/api';
+import { getMagicLink, googleLoginBackend } from '../../services/api';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../services/firebase';
 
@@ -49,6 +49,11 @@ export default function LoginPage() {
     }
   };
 
+  const handleMagicLinkLogin = async (email) => {
+    const res = await getMagicLink(email);
+    console.log(res);
+  }
+
   if (user) return <Navigate to="/" replace />;
 
   return (
@@ -57,6 +62,7 @@ export default function LoginPage() {
       <AuthForm
         onSubmit={handleEmailPassword}
         googleLogin={handleGoogleLogin}
+        magicLinkLogin={handleMagicLinkLogin}
       />
     </>
   );

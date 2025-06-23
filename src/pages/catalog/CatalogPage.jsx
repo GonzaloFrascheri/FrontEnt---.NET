@@ -71,11 +71,18 @@ export default function CatalogPage() {
         setSelectedBranch(firstBranch);
       }
     }
+    setLoading(false);
   }, [userLocation, branches]);
 
   useEffect(() => {
-    getCatalog();
-  }, [getCatalog, selectedBranch]);
+    if (selectedBranch) {
+      getCatalogWithStock(selectedBranch.id).then(data => {
+        setCatalog(data)
+      });
+    }
+
+    setLoading(false);
+  }, [selectedBranch]);
 
   useEffect(() => {
     getUserData().then(data => {

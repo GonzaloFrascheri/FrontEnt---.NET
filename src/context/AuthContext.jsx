@@ -19,6 +19,12 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  // Función para obtener el perfil del usuario
+  const getProfile = async () => {
+    const user = await getUser();
+    return user.data;
+  };
+
   // Cuando el usuario hace login manual
   const login = async ({ email, password }) => {
     localStorage.removeItem('auth_token');
@@ -31,6 +37,19 @@ export function AuthProvider({ children }) {
       getUserData();
     } else {
       throw new Error('Login fallido');
+    }
+  };
+
+  // Login con token (para magic link)
+  const loginWithToken = async ({ token }) => {
+    localStorage.setItem('auth_token', token);
+    setUser({ token });
+    // Trae el perfil extendido
+    try {
+      const profile = await getProfile();
+      setUserData(profile);
+    } catch (error) {
+      console.error('Error obteniendo perfil:', error);
     }
   };
 
@@ -59,7 +78,17 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, setUser, getUserData, setUserData, login, logout, loading, refreshUserData }}>
+    <AuthContext.Provider value={{
+      user,
+      setUser,
+      refreshUserData,
+      getUserData,
+      setUserData,
+      login,
+      loginWithToken,
+      logout,
+      loading
+    }}>
       {children}
     </AuthContext.Provider>
   );
