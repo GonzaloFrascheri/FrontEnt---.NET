@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import { Alert, Spinner } from 'react-bootstrap';
@@ -89,6 +89,12 @@ export default function RegisterPage() {
         <button type="submit" className="auth-card__button" disabled={loading}>
           {loading ? <Spinner animation="border" size="sm" /> : "Crear cuenta"}
         </button>
+        <p>
+          ¿Ya tienes cuenta?{' '}
+          <Link to="/login" className="auth-card__link">
+            Inicia sesión
+          </Link>
+        </p>
         {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
         {success && <Alert variant="success" className="mt-3">{success}</Alert>}
       </form>

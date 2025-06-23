@@ -48,21 +48,21 @@ html, body, #root {
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     text-align: center;
   }
-  
+
   /* Título centrado y con un poco de espacio */
   .auth-card__title {
     margin: 0 0 1.5rem;
     font-size: 1.5rem;
     color: #333;
   }
-  
+
   /* Formulario columna */
   .auth-card__form {
     display: flex;
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   /* Label en columna */
   .auth-card__label {
     display: flex;
@@ -71,7 +71,7 @@ html, body, #root {
     font-size: 0.9rem;
     color: #555;
   }
-  
+
   /* Inputs con ancho completo y padding */
   .auth-card__input {
     margin-top: 0.25rem;
@@ -82,7 +82,7 @@ html, body, #root {
     width: 100%;
     box-sizing: border-box;
   }
-  
+
   /* Botones generales */
   .auth-card__button {
     margin-top: 0.5rem;
@@ -92,20 +92,19 @@ html, body, #root {
     border-radius: 4px;
     cursor: pointer;
   }
-  
+
   /* Botón “Ingresar” */
   .auth-card__button {
     background-color: #1976d2;
     color: #fff;
   }
-  
+
   /* Separador con texto “o” */
   .auth-card__divider {
-    margin: 1.5rem 0;
     color: #888;
     font-size: 0.9rem;
   }
-  
+
   /* Botón Google: reusa mismas dimensiones */
   .auth-card__button--google {
     display: inline-flex;
@@ -116,14 +115,14 @@ html, body, #root {
     border: 1px solid #ccc;
     width: 100%;
   }
-  
+
   /* Icono dentro del botón Google */
   .auth-card__google-icon {
     width: 20px;
     height: 20px;
     margin-right: 0.5rem;
   }
-  
+
   .auth-card__label-checkbox {
     display: flex;
     align-items: center;
@@ -132,7 +131,7 @@ html, body, #root {
     font-size: 0.9rem;
     color: #555;
   }
-  
+
   .auth-card__label-checkbox input {
     width: auto;
     margin: 0;
