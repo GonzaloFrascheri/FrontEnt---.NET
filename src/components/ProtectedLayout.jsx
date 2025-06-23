@@ -1,9 +1,7 @@
 // src/components/ProtectedLayout.jsx
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
-  Navbar,
-  Button,
   Nav,
   Offcanvas,
   Container,
@@ -13,15 +11,14 @@ import {
 import {
   Building,
   FuelPump,
-  PersonFill
+  PersonFill,
+  Cart
 } from 'react-bootstrap-icons';
-import { AuthContext } from '../context/AuthContext';
 import Footer from './Footer';
 import logo from '../assets/logo.jpg';
 import NavBar from './NavBar';
 
 export default function ProtectedLayout() {
-  const { user, logout } = useContext(AuthContext);
   const [showCanvas, setShowCanvas] = useState(false);
   const loc = useLocation();
 
@@ -31,6 +28,13 @@ export default function ProtectedLayout() {
       icon: <Building className="me-2" />,
       items: [
         { label: 'Dashboard', to: '/' },
+      ]
+    },
+    {
+      title: 'Productos',
+      icon: <Cart className="me-2" />,
+      items: [
+        { label: 'Productos', to: '/catalog' }
       ]
     },
     {

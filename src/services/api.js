@@ -11,13 +11,6 @@ const api = axios.create({
 
 // 🛠️ Interceptor para debug: imprime URL, método y headers
 api.interceptors.request.use(config => {
-  console.log(
-    `%c[API Request] %c${config.method.toUpperCase()} %c${config.url}`,
-    'color: gray;',
-    'color: blue;',
-    'color: green;',
-    config.headers
-  );
   return config;
 });
 
@@ -192,8 +185,19 @@ export async function createProduct({ tenantId, nombre, precio, requiereVEAI }) 
  * @returns {Promise<Array>} lista de productos con campos id, nombre, costoPuntos, edadMinima
  */
 export async function getCatalog() {
-  const response = await api.get('/catalog');
-  return response.data;
+  const response = await api.get('/Product');
+
+  return response.data.data;
+}
+
+/**
+ * Obtiene el catálogo de productos para canje de puntos con sus stock.
+ * @returns {Promise<Array>} lista de productos con campos id, nombre, costoPuntos, edadMinima
+ */
+export async function getCatalogWithStock(branchId) {
+  const response = await api.get(`/Product/stock/${branchId}`);
+
+  return response.data.data;
 }
 
 /**

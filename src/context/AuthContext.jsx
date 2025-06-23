@@ -34,9 +34,7 @@ export function AuthProvider({ children }) {
     if (token) {
       localStorage.setItem('auth_token', token);
       setUser({ token });
-      // Trae el perfil extendido
-      const profile = await getProfile();
-      setUserData(profile);
+      getUserData();
     } else {
       throw new Error('Login fallido');
     }
