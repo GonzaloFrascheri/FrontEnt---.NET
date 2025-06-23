@@ -6,7 +6,6 @@ import LoginPage from './pages/login/LoginPage';
 import RegisterPage from './pages/login/RegisterPage';
 import HomePage from './pages/login/HomePage';
 import UpdateFuelPricePage from './pages/fuel/UpdateFuelPricePage';
-import RedeemPointsPage from './pages/points/RedeemPointsPage';
 import VerifyIdentityPage from './pages/verifyAge/VerifyIdentityPage';
 import ProfilePage from './pages/login/ProfilePage';
 import CatalogPage from './pages/catalog/CatalogPage';
@@ -51,7 +50,6 @@ export default function AppRoutes() {
           <Route path="catalog" element={<CatalogPage />} />
           <Route path="perfil" element={<ProfilePage />} />
           <Route path="fuels/actualizar" element={<UpdateFuelPricePage />} />
-          <Route path="redeem" element={<RedeemPointsPage />} />
           <Route path="history" element={<HistoryPage />} />
           <Route path="stations/map" element={<StationsMapPage />} />
           <Route path="balance" element={<BalancePage />} />

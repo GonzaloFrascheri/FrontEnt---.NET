@@ -220,6 +220,14 @@ export async function redeemProduct({ productId }) {
   return response.data;
 }
 
+export async function generateRedemptionToken({ branchId, productId }) {
+  const response = await api.post('/Redemption/generate-token', { branchId, productId });
+  if (response.data && !response.data.error && response.data.data?.token) {
+    return response.data.data;
+  }
+  throw new Error(response.data?.message || "No se pudo generar el token");
+}
+
 /*--------------------------------COMBUSTIBLE--------------------------------*/
 /**
  * Actualiza el precio de un combustible para todas las estaciones.

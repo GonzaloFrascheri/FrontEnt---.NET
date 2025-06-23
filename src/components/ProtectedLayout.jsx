@@ -50,7 +50,6 @@ export default function ProtectedLayout() {
       icon: <PersonFill className="me-2" />,
       items: [
         { label: 'Verificación VEAI', to: '/verify' },
-        { label: 'Canje de Puntos', to: '/redeem' },
         { label: 'Historial de Transacciones', to: '/history' },
       ]
     }

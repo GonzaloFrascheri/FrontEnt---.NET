@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom'
 import { Modal, Button, Form, InputGroup } from 'react-bootstrap'
 
 import { createTransaction } from '../services/api';
+import { generateRedemptionToken } from '../services/api';
+import { QRCodeCanvas } from 'qrcode.react';
+import { Spinner, Alert } from 'react-bootstrap';
 import { AuthContext } from '../context/AuthContext';
 
 import defaultImage from '../assets/default.jpg'
@@ -19,6 +22,10 @@ const ModalComprar = ({
 
   const [quantity, setQuantity] = useState(1);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [qrToken, setQrToken] = useState('');
+  const [canjeLoading, setCanjeLoading] = useState(false);
+  const [canjeError, setCanjeError] = useState('');
+
 
   const handleQuantityChange = (newQuantity) => {
     const numQuantity = parseInt(newQuantity);
@@ -58,6 +65,71 @@ const ModalComprar = ({
     handleClose();
     setShowConfirmation(false);
   };
+
+  const handleCloseQr = async () => {
+    setQrToken('');
+    handleClose();
+    // Refresca ambos después de un canje exitoso
+    await refreshUserData();
+    await refreshCatalog();
+  };
+
+  const handleRedeemPoints = async () => {
+    setCanjeLoading(true);
+    setCanjeError('');
+    setQrToken('');
+    try {
+      const res = await generateRedemptionToken({
+        branchId: selectedBranchId,
+        productId: item.id
+      });
+      setQrToken(res.token);
+      await refreshUserData();
+      await refreshCatalog();
+    } catch (err) {
+      setCanjeError('No se pudo generar el QR: ' + (err.message || ''));
+    } finally {
+      setCanjeLoading(false);
+    }
+  };
+
+  if (qrToken) {
+    return (
+      <Modal
+        show={showModal}
+        onHide={() => {
+          setQrToken('');
+          handleClose();
+          refreshUserData();
+          refreshCatalog();
+        }}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>¡Canje Realizado!</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center">
+          <p>Mostrá este código QR en la estación para validar el canje.</p>
+          <div className="d-inline-block p-3 bg-white shadow-sm mb-3">
+            <QRCodeCanvas value={qrToken} size={220} />
+          </div>
+          <div>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setQrToken('');
+                handleClose();
+                refreshUserData();
+                refreshCatalog();
+              }}
+            >
+            Cerrar
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
+    );
+  }
 
   return (
     <>
@@ -154,13 +226,16 @@ const ModalComprar = ({
 
             <div className='d-flex gap-2'>
               <Button
-                as={Link}
-                to=""
-                state={{ preselect: item.id, quantity: quantity }}
                 variant="warning"
-                onClick={handleClose}
+                onClick={handleRedeemPoints}
+                disabled={canjeLoading || !!qrToken || (item.costoPuntos && item.costoPuntos > (loyaltyProgram?.userPoints || 0))}
               >
-                Canjear ({totalPoints}pts)
+                {canjeLoading
+                  ? <Spinner animation="border" size="sm" />
+                  : item.costoPuntos
+                    ? `Canjear (${item.costoPuntos}pts)`
+                    : `Canjear (${totalPoints}pts)`
+                }
               </Button>
 
               <Button

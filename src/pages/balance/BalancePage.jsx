@@ -27,7 +27,7 @@ export default function BalancePage() {
           </div>
 
           <div className="mt-3">
-            <Link to="/redeem">Ir a Canje de Puntos</Link>
+            <Link to="/catalog">Ir a Canje de Puntos</Link>
           </div>
         </Card.Body>
       </Card>
