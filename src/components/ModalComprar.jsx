@@ -10,6 +10,8 @@ import { AuthContext } from '../context/AuthContext';
 
 import defaultImage from '../assets/default.jpg'
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
 const ModalComprar = ({
   selectedBranchId,
   showModal,
@@ -77,16 +79,14 @@ const ModalComprar = ({
   const handleRedeemPoints = async () => {
     setCanjeLoading(true);
     setCanjeError('');
-    setQrToken('');
     try {
-      const res = await generateRedemptionToken({
-        branchId: selectedBranchId,
-        productId: item.id
-      });
-      setQrToken(res.token);
+      const { token } = await generateRedemptionToken({ branchId: selectedBranchId, productId: item.id });
+      console.log('TOKEN RECIBIDO →', token);
+      setQrToken(token);
       await refreshUserData();
       await refreshCatalog();
     } catch (err) {
+      console.error(err);
       setCanjeError('No se pudo generar el QR: ' + (err.message || ''));
     } finally {
       setCanjeLoading(false);
@@ -94,6 +94,9 @@ const ModalComprar = ({
   };
 
   if (qrToken) {
+
+    const redemptionUrl = `${API_BASE}/Redemption/process/${qrToken}`;
+
     return (
       <Modal
         show={showModal}
@@ -111,17 +114,24 @@ const ModalComprar = ({
         <Modal.Body className="text-center">
           <p>Mostrá este código QR en la estación para validar el canje.</p>
           <div className="d-inline-block p-3 bg-white shadow-sm mb-3">
-            <QRCodeCanvas value={qrToken} size={220} />
+            <QRCodeCanvas value={redemptionUrl} size={220} />
           </div>
+
+          <div className="mt-2">
+            <a
+              href={redemptionUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ wordBreak: 'break-all' }}
+            >
+              {redemptionUrl}
+            </a>
+          </div>
+
           <div>
             <Button
               variant="secondary"
-              onClick={() => {
-                setQrToken('');
-                handleClose();
-                refreshUserData();
-                refreshCatalog();
-              }}
+              onClick={handleCloseQr}
             >
             Cerrar
             </Button>
