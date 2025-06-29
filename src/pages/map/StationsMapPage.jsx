@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import L from 'leaflet';
 import estacion from '../../assets/estacion.png';
 import { getBranches } from '../../services/api';
+import { TenantContext } from '../../context/TenantContext';
 
 function FitBounds({ stations }) {
   const map = useMap();
@@ -17,6 +18,7 @@ function FitBounds({ stations }) {
 
 export default function StationsMapPage() {
   const [stations, setStations] = useState([]);
+  const { tenantUIConfig } = useContext(TenantContext);
 
     useEffect(() => {
       getBranches().then(data => {
@@ -42,7 +44,7 @@ export default function StationsMapPage() {
 
   return (
     <div className="px-3">
-      <h2 className="text-center my-4">Mapa de Estaciones</h2>
+      <h2 className="text-center my-4" style={{ color: tenantUIConfig?.primaryColor }}>Mapa de Estaciones</h2>
       <MapContainer
         center={[-34.91, -56.15]}
         zoom={12}

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { getBranches, getFuelPrices } from "../../services/api";
 import { Spinner, Row, Dropdown, Container, Card, Col, Alert } from "react-bootstrap";
+import { TenantContext } from "../../context/TenantContext";
 
 const FUEL_NAMES = {
   0: { label: "Súper", icon: "⛽", css: "fuel-super" },
@@ -15,6 +16,7 @@ export default function FuelsPage() {
   const [loading, setLoading] = useState(true);
   const [fuelsLoading, setFuelsLoading] = useState(false);
   const [error, setError] = useState("");
+  const { tenantUIConfig } = useContext(TenantContext);
 
   useEffect(() => {
     setLoading(true);
@@ -42,7 +44,7 @@ export default function FuelsPage() {
   return (
     <Container className="py-5">
       <div className="mb-4 w-100 d-flex justify-content-between align-items-center">
-        <h3>Precios de Combustibles</h3>
+        <h3 style={{ color: tenantUIConfig?.primaryColor }}>Precios de Combustibles</h3>
         <Dropdown>
           <Dropdown.Toggle>
             {selectedBranch?.address || selectedBranch?.name || "Seleccioná estación"}

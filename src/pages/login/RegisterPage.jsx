@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
@@ -16,7 +16,14 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
   const { setUser } = useContext(AuthContext);
-  const { tenantUIConfig } = useContext(TenantContext);
+  const { tenantUIConfig, ensureTenantUIConfig, loading: tenantLoading } = useContext(TenantContext);
+
+  // Verificar que tenantUIConfig esté disponible
+  useEffect(() => {
+    if (!tenantUIConfig && !tenantLoading) {
+      ensureTenantUIConfig();
+    }
+  }, [tenantUIConfig, tenantLoading, ensureTenantUIConfig]);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -50,6 +57,20 @@ export default function RegisterPage() {
     }
     setLoading(false);
   };
+
+  // Mostrar loading mientras se cargan los datos del tenant
+  if (tenantLoading || !tenantUIConfig) {
+    return (
+      <div className="auth-card">
+        <div className="text-center">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Cargando...</span>
+          </div>
+          <p className="mt-2">Cargando configuración...</p>
+        </div>
+      </div>
+    );
+  }
 
   const tenantStyles = {
     primaryColor: tenantUIConfig?.primaryColor || '#1976d2',

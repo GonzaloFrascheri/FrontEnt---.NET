@@ -343,7 +343,8 @@ api.interceptors.request.use(config => {
     config.url &&
     (
       config.url.includes('/public/tenant') ||
-      config.url.includes('/public/')
+      config.url.includes('/public/') ||
+      config.url.includes('/TenantUI/public')
     )
   ) {
     // Borra el header Authorization si existe (por si arrastra viejo)

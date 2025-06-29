@@ -18,6 +18,11 @@ export default function CatalogPage() {
   const { getUserData } = useContext(AuthContext);
   const { tenantUIConfig } = useContext(TenantContext);
 
+  const tenantStyles = {
+    primaryColor: tenantUIConfig?.primaryColor || '#1976d2',
+    secondaryColor: tenantUIConfig?.secondaryColor || '#FFFF00',
+  };
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getCatalog = async () => {
     if (selectedBranch) {
@@ -52,7 +57,6 @@ export default function CatalogPage() {
       const branches = Array.isArray(data.data) ? data.data : [];
       const mapped = branches.map(b => ({
         id: b.id,
-        name: b.tenant?.name ?? "Estación",
         address: b.address,
         lat: parseFloat(b.latitud),
         lng: parseFloat(b.longitud),
@@ -97,24 +101,68 @@ export default function CatalogPage() {
   return (
     <div className="p-4">
       <div className="mb-4 w-100 d-flex justify-content-between align-items-center">
-        <h2 className="mb-4">Productos</h2>
+        <h2 className="mb-4" style={{ color: tenantStyles.primaryColor }}>Productos</h2>
 
         <Dropdown>
-          <Dropdown.Toggle>
+          <Dropdown.Toggle
+            style={{
+              backgroundColor: tenantStyles.primaryColor,
+              borderColor: tenantStyles.primaryColor,
+              color: 'white'
+            }}
+            onMouseOver={(e) => {
+              e.target.style.backgroundColor = tenantStyles.secondaryColor;
+              e.target.style.borderColor = tenantStyles.secondaryColor;
+              e.target.style.color = '#333';
+            }}
+            onMouseOut={(e) => {
+              e.target.style.backgroundColor = tenantStyles.primaryColor;
+              e.target.style.borderColor = tenantStyles.primaryColor;
+              e.target.style.color = 'white';
+            }}
+          >
             {selectedBranch?.address}
           </Dropdown.Toggle>
-          <Dropdown.Menu>
+          <Dropdown.Menu
+            style={{
+              border: `2px solid ${tenantStyles.primaryColor}`,
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+            }}
+          >
             {branches.map(branch => (
-              <Dropdown.Item key={branch.id} value={branch.id} onClick={() => {
-                setSelectedBranch(branch)
-              }}>
+              <Dropdown.Item
+                key={branch.id}
+                value={branch.id}
+                onClick={() => {
+                  setSelectedBranch(branch)
+                }}
+                style={{
+                  backgroundColor: selectedBranch?.id === branch.id ? tenantStyles.primaryColor : 'transparent',
+                  color: selectedBranch?.id === branch.id ? 'white' : '#333',
+                  fontWeight: selectedBranch?.id === branch.id ? 'bold' : 'normal',
+                  position: 'relative',
+                  padding: '10px 15px'
+                }}
+                onMouseOver={(e) => {
+                  if (selectedBranch?.id !== branch.id) {
+                    e.target.style.backgroundColor = `${tenantStyles.primaryColor}20`;
+                    e.target.style.color = tenantStyles.primaryColor;
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (selectedBranch?.id !== branch.id) {
+                    e.target.style.backgroundColor = 'transparent';
+                    e.target.style.color = '#333';
+                  }
+                }}
+              >
                 {branch.address}
               </Dropdown.Item>
             ))}
           </Dropdown.Menu>
         </Dropdown>
       </div>
-
 
       <Row xs={1} sm={2} md={3} lg={3} className="g-4">
         {catalog.filter(item => item.stock > 0).map(item => (
@@ -127,7 +175,6 @@ export default function CatalogPage() {
             tenantUIConfig={tenantUIConfig}
           />
         ))}
-
       </Row>
 
       {catalog.filter(item => item.stock > 0).length === 0 && (

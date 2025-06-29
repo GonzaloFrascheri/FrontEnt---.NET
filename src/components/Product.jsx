@@ -87,14 +87,6 @@ const Product = ({ item, isUserVerified, selectedBranchId, refreshCatalog, tenan
                     <div className="h5 fw-bold" style={promotionalPriceStyle}>
                       ${item.promotionalPrice}
                     </div>
-                    {item.discountPercentage > 0 && (
-                      <Badge
-                        style={promotionBadgeStyle}
-                        className="ms-2"
-                      >
-                        -{item.discountPercentage}%
-                      </Badge>
-                    )}
                   </div>
                 ) : (
                   <div className="h5 fw-bold">

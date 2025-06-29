@@ -1,5 +1,5 @@
 // src/components/ProtectedLayout.jsx
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
   Nav,
@@ -17,10 +17,12 @@ import {
 import Footer from './Footer';
 import logo from '../assets/logo.jpg';
 import NavBar from './NavBar';
+import { TenantContext } from '../context/TenantContext';
 
 export default function ProtectedLayout() {
   const [showCanvas, setShowCanvas] = useState(false);
   const loc = useLocation();
+  const { tenantUIConfig } = useContext(TenantContext);
 
   const sections = [
     {
@@ -89,7 +91,6 @@ export default function ProtectedLayout() {
     <div className="d-flex flex-column min-vh-100">
       <NavBar />
 
-      {/* Offcanvas para móvil */}
       <Offcanvas
         show={showCanvas}
         onHide={() => setShowCanvas(false)}
@@ -105,19 +106,16 @@ export default function ProtectedLayout() {
         </Offcanvas.Body>
       </Offcanvas>
 
-      {/* Contenedor principal */}
       <Container fluid className="flex-grow-1 px-0">
         <Row className="g-0 flex-grow-1">
-          {/* Sidebar desktop */}
           <Col
             md={2}
             className="d-none d-md-flex flex-column bg-light p-3 overflow-auto"
           >
-            {/* Logo arriba */}
             <div className="text-center mb-4">
               <Link to="/">
                 <img
-                  src={logo}
+                  src={tenantUIConfig?.logoUrl || logo}
                   alt="ServiPuntos Logo"
                   style={{ maxWidth: '100%', height: 'auto' }}
                 />
