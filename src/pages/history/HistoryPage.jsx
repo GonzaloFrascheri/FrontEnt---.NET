@@ -21,10 +21,9 @@ export default function HistoryPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Handler para mostrar detalle en modal
   const handleShowDetail = async (tx) => {
     setSelectedTx(tx);
-    setDetail([]); // limpia por si tarda
+    setDetail([]);
     setShowModal(true);
     try {
       const items = await getTransactionItems(tx.id);
@@ -40,6 +39,7 @@ export default function HistoryPage() {
     2: "Canje de productos por puntos"
   };
 
+  console.log(detail)
   return (
     <Container className="py-5">
       <Card className="shadow-sm">
@@ -74,7 +74,6 @@ export default function HistoryPage() {
         </Card.Body>
       </Card>
 
-      {/* Modal de detalle */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title style={{ color: tenantUIConfig?.primaryColor }}>
@@ -96,7 +95,7 @@ export default function HistoryPage() {
                 {detail.map(item => (
                   <tr key={item.id}>
                     <td>
-                      <img src={item.imageUrl || defaultImage} alt={item.productName} style={{ maxWidth: 40, maxHeight: 40, marginRight: 8 }} />
+                      <img src={item.productImageUrl || defaultImage} alt={item.productName} style={{ maxWidth: 40, maxHeight: 40, marginRight: 8 }} />
                       {item.productName}
                     </td>
                     <td>{item.quantity}</td>
