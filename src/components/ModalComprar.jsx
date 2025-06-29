@@ -19,6 +19,7 @@ const ModalComprar = ({
   item,
   loyaltyProgram,
   refreshCatalog,
+  tenantUIConfig,
 }) => {
   const { refreshUserData } = useContext(AuthContext);
 
@@ -26,8 +27,26 @@ const ModalComprar = ({
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [qrToken, setQrToken] = useState('');
   const [canjeLoading, setCanjeLoading] = useState(false);
-  const [canjeError, setCanjeError] = useState('');
+  const [_canjeError, setCanjeError] = useState('');
 
+  const primaryColor = tenantUIConfig?.primaryColor || '#0d6efd';
+  const secondaryColor = tenantUIConfig?.secondaryColor || '#ffc107';
+
+  const primaryButtonStyle = {
+    backgroundColor: primaryColor,
+    borderColor: primaryColor,
+    color: '#fff'
+  };
+
+  const secondaryButtonStyle = {
+    backgroundColor: secondaryColor,
+    borderColor: secondaryColor,
+    color: '#000'
+  };
+
+  const priceStyle = {
+    color: primaryColor
+  };
 
   const handleQuantityChange = (newQuantity) => {
     const numQuantity = parseInt(newQuantity);
@@ -81,7 +100,6 @@ const ModalComprar = ({
     setCanjeError('');
     try {
       const { token } = await generateRedemptionToken({ branchId: selectedBranchId, productId: item.id });
-      console.log('TOKEN RECIBIDO →', token);
       setQrToken(token);
       await refreshUserData();
       await refreshCatalog();
@@ -130,7 +148,7 @@ const ModalComprar = ({
 
           <div>
             <Button
-              variant="secondary"
+              style={primaryButtonStyle}
               onClick={handleCloseQr}
             >
             Cerrar
@@ -170,7 +188,7 @@ const ModalComprar = ({
           <div className="row mb-3">
             <div className="col-6">
               <h6>Precio Unitario</h6>
-              <p className="text-primary fw-bold">${item.price}</p>
+              <p className="fw-bold" style={priceStyle}>${item.price}</p>
             </div>
             <div className="col-6">
               <h6>Stock Disponible</h6>
@@ -211,7 +229,7 @@ const ModalComprar = ({
             <div className="row">
               <div className="col-6">
                 <h6>Precio Total</h6>
-                <p className="text-primary fw-bold fs-5">${totalPrice}</p>
+                <p className="fw-bold fs-5" style={priceStyle}>${totalPrice}</p>
               </div>
               <div className="col-6">
                 <h6>Puntos Necesarios</h6>
@@ -236,7 +254,7 @@ const ModalComprar = ({
 
             <div className='d-flex gap-2'>
               <Button
-                variant="warning"
+                style={secondaryButtonStyle}
                 onClick={handleRedeemPoints}
                 disabled={canjeLoading || !!qrToken || (item.costoPuntos && item.costoPuntos > (loyaltyProgram?.userPoints || 0))}
               >
@@ -249,7 +267,7 @@ const ModalComprar = ({
               </Button>
 
               <Button
-                variant="primary"
+                style={primaryButtonStyle}
                 onClick={handleConfirmPurchase}
               >
                 Comprar (${totalPrice})
@@ -307,7 +325,7 @@ const ModalComprar = ({
           <Button variant="secondary" onClick={handleCancelConfirmation}>
             Cancelar
           </Button>
-          <Button variant="success" onClick={handleBuy}>
+          <Button style={primaryButtonStyle} onClick={handleBuy}>
             Confirmar Compra
           </Button>
         </Modal.Footer>

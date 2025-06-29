@@ -1,12 +1,11 @@
 // src/pages/verifyAge/VerifyIdentityPage.jsx
 import React, { useState, useContext } from 'react';
-import { AuthContext } from '../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
+import { Container, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { verifyIdentity } from '../../services/api';
+import { TenantContext } from '../../context/TenantContext';
 
 export default function VerifyIdentityPage() {
-  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [form, setForm] = useState({
     documentNumber: '',
@@ -14,6 +13,7 @@ export default function VerifyIdentityPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const { tenantUIConfig } = useContext(TenantContext);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -41,7 +41,7 @@ export default function VerifyIdentityPage() {
       <Col xs={12} sm={8} md={6} lg={5}>
         <Card className="shadow-sm">
           <Card.Body>
-            <Card.Title className="text-center mb-4">
+            <Card.Title className="text-center mb-4" style={{ color: tenantUIConfig?.primaryColor }}>
               Verificación de Edad e Identidad
             </Card.Title>
             <Card.Text className="mb-4">
@@ -62,29 +62,14 @@ export default function VerifyIdentityPage() {
                 disabled={loading}
                 required
               />
+
             </Form.Group>
               <div className="d-grid mb-3">
-                <Button variant="primary" type="submit" disabled={loading}>
+                <Button style={{ backgroundColor: tenantUIConfig?.primaryColor }} type="submit" disabled={loading}>
                   {loading ? 'Verificando…' : 'Verificar identidad'}
                 </Button>
               </div>
             </Form>
-
-            <div className="mb-3">
-              <a
-                href="https://dnic.example.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Revisar servicio de verificación DNIC
-              </a>
-            </div>
-            <hr />
-            <div className="text-center">
-              <Link to="/" className="link-secondary">
-                Volver
-              </Link>
-            </div>
           </Card.Body>
         </Card>
       </Col>

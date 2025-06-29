@@ -37,7 +37,7 @@ html, body, #root {
   overflow-y: auto;
 }
 
-/* Centro la “card” en la página */
+/* Centro la "card" en la página */
 .auth-card {
     width: 320px;
     margin: 4rem auto;
@@ -93,13 +93,13 @@ html, body, #root {
     cursor: pointer;
   }
 
-  /* Botón “Ingresar” */
+  /* Botón "Ingresar" */
   .auth-card__button {
     background-color: #1976d2;
     color: #fff;
   }
 
-  /* Separador con texto “o” */
+  /* Separador con texto "o" */
   .auth-card__divider {
     color: #888;
     font-size: 0.9rem;
@@ -175,3 +175,23 @@ html, body, #root {
 .fuel-super { color: #25c481; }
 .fuel-gasoil { color: #ffa000; }
 .fuel-premium { color: #1976d2; }
+
+/* Estilos para el header del tenant */
+.auth-card__header {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.auth-card__logo {
+  max-width: 200px;
+  max-height: 80px;
+  object-fit: contain;
+  margin-bottom: 0.5rem;
+}
+
+.auth-card__tenant-name {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}

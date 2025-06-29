@@ -1,16 +1,18 @@
 // src/pages/history/HistoryPage.jsx
 import React, { useState, useEffect, useContext } from 'react';
 import { Container, Card, Table, Modal, Button } from 'react-bootstrap';
-import { AuthContext } from '../../context/AuthContext';
 import { getTransactionHistory, getTransactionItems } from '../../services/api';
+import { TenantContext } from '../../context/TenantContext';
+
+import defaultImage from '../../assets/default.jpg';
 
 export default function HistoryPage() {
-  const { user } = useContext(AuthContext);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [detail, setDetail] = useState([]);
   const [selectedTx, setSelectedTx] = useState(null);
+  const { tenantUIConfig } = useContext(TenantContext);
 
   useEffect(() => {
     setLoading(true);
@@ -27,7 +29,8 @@ export default function HistoryPage() {
     try {
       const items = await getTransactionItems(tx.id);
       setDetail(items);
-    } catch (e) {
+    } catch (err) {
+      console.error(err);
       setDetail([]);
     }
   };
@@ -41,7 +44,7 @@ export default function HistoryPage() {
     <Container className="py-5">
       <Card className="shadow-sm">
         <Card.Body>
-          <Card.Title className="mb-4">Historial de Transacciones</Card.Title>
+          <Card.Title className="mb-4" style={{ color: tenantUIConfig?.primaryColor }}>Historial de Transacciones</Card.Title>
           {loading ? (
             <p>Cargando...</p>
           ) : history.length > 0 ? (
@@ -74,7 +77,7 @@ export default function HistoryPage() {
       {/* Modal de detalle */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>
+          <Modal.Title style={{ color: tenantUIConfig?.primaryColor }}>
             Detalle de Transacción {selectedTx ? `#${selectedTx.id}` : ""}
           </Modal.Title>
         </Modal.Header>
@@ -93,7 +96,7 @@ export default function HistoryPage() {
                 {detail.map(item => (
                   <tr key={item.id}>
                     <td>
-                      <img src={item.productImageUrl} alt={item.productName} style={{ maxWidth: 40, maxHeight: 40, marginRight: 8 }} />
+                      <img src={item.imageUrl || defaultImage} alt={item.productName} style={{ maxWidth: 40, maxHeight: 40, marginRight: 8 }} />
                       {item.productName}
                     </td>
                     <td>{item.quantity}</td>
@@ -108,7 +111,7 @@ export default function HistoryPage() {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button style={{ backgroundColor: tenantUIConfig?.primaryColor }} onClick={() => setShowModal(false)}>
             Cerrar
           </Button>
         </Modal.Footer>
