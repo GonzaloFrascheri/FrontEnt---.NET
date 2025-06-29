@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../../services/api';
 import { AuthContext } from '../../context/AuthContext';
 import { Alert, Spinner } from 'react-bootstrap';
+import { TenantContext } from '../../context/TenantContext';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({
@@ -15,6 +16,7 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
   const { setUser } = useContext(AuthContext);
+  const { tenantUIConfig } = useContext(TenantContext);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -49,8 +51,25 @@ export default function RegisterPage() {
     setLoading(false);
   };
 
+  const tenantStyles = {
+    primaryColor: tenantUIConfig?.primaryColor || '#1976d2',
+    secondaryColor: tenantUIConfig?.secondaryColor || '#FFFF00',
+    logoUrl: tenantUIConfig?.logoUrl,
+    tenantName: tenantUIConfig?.tenantName
+  };
+
   return (
     <div className="auth-card">
+      {tenantStyles.logoUrl && (
+        <div className="auth-card__header">
+          <img
+            src={tenantStyles.logoUrl}
+            alt={`${tenantStyles.tenantName} logo`}
+            className="auth-card__logo"
+          />
+        </div>
+      )}
+
       <h2 className="auth-card__title">Regístrate</h2>
       <form onSubmit={handleSubmit} className="auth-card__form">
         <label className="auth-card__label">
@@ -86,12 +105,17 @@ export default function RegisterPage() {
             required
           />
         </label>
-        <button type="submit" className="auth-card__button" disabled={loading}>
+        <button
+          type="submit"
+          className="auth-card__button"
+          disabled={loading}
+          style={{ backgroundColor: tenantStyles.primaryColor }}
+        >
           {loading ? <Spinner animation="border" size="sm" /> : "Crear cuenta"}
         </button>
         <p>
           ¿Ya tienes cuenta?{' '}
-          <Link to="/login" className="auth-card__link">
+          <Link to="/login" className="auth-card__link" style={{ color: tenantStyles.primaryColor }}>
             Inicia sesión
           </Link>
         </p>

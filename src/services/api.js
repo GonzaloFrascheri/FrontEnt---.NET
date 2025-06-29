@@ -150,11 +150,28 @@ export async function getTenants() {
 
 /**
  * Obtiene el programa de fidelidad de un tenant
- * @param {number} tenantId
  * @returns {Promise<Object>} programa de fidelidad
  */
 export async function getLoyaltyProgram() {
   const response = await api.get(`/LoyaltyProgram`);
+  return response.data.data;
+}
+
+/**
+ * Obtiene la configuración de la UI de un tenant
+ * @returns {Promise<Object>} configuración de la UI
+ */
+export async function getTenantUIConfig() {
+  const response = await api.get(`/TenantUI/public`);
+  return response.data.data;
+}
+
+/**
+ * Obtiene los parámetros generales de un tenant
+ * @returns {Promise<Object>} parámetros generales
+ */
+export async function getGeneralParameters() {
+  const response = await api.get(`/GeneralParameter`);
   return response.data.data;
 }
 

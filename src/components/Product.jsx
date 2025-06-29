@@ -6,7 +6,7 @@ import { getLoyaltyProgram } from '../services/api';
 
 import defaultImage from '../assets/default.jpg';
 
-const Product = ({ item, isUserVerified, selectedBranchId, refreshCatalog }) => {
+const Product = ({ item, isUserVerified, selectedBranchId, refreshCatalog, tenantUIConfig }) => {
   const [showModal, setShowModal] = useState(false);
   const [loyaltyProgram, setLoyaltyProgram] = useState(null);
 
@@ -21,15 +21,36 @@ const Product = ({ item, isUserVerified, selectedBranchId, refreshCatalog }) => 
     fetchLoyaltyProgram();
   }, []);
 
+  const primaryColor = tenantUIConfig?.primaryColor || '#0d6efd';
+  const secondaryColor = tenantUIConfig?.secondaryColor || '#ffc107';
+
+  const buttonStyle = {
+    backgroundColor: primaryColor,
+    borderColor: primaryColor,
+    color: '#fff'
+  };
+
+  const promotionBadgeStyle = {
+    backgroundColor: secondaryColor,
+    color: '#000',
+    borderColor: secondaryColor
+  };
+
+  const promotionalPriceStyle = {
+    color: secondaryColor
+  };
+
   if ((!item.ageRestricted) || (item.ageRestricted && isUserVerified)) {
     return (
       <>
         <Col key={item.id}>
           <Card className="h-100 shadow-sm text-center position-relative">
-
             {item.hasPromotion && (
               <div className="position-absolute top-0 end-0 w-auto">
-                <Badge bg="danger" className="rounded-0 rounded-top-end">
+                <Badge
+                  style={promotionBadgeStyle}
+                  className="rounded-0 rounded-top-end"
+                >
                   ¡PROMOCIÓN!
                 </Badge>
               </div>
@@ -54,19 +75,26 @@ const Product = ({ item, isUserVerified, selectedBranchId, refreshCatalog }) => 
               </Card.Title>
 
               <Card.Text className="flex-grow-1">
-                {item.descripcion}
+                {item.description}
               </Card.Text>
 
-              {/* Precios */}
               <div className="mb-3">
                 {item.hasPromotion ? (
                   <div>
                     <div className="text-decoration-line-through text-muted">
                       ${item.originalPrice}
                     </div>
-                    <div className="h5 text-danger fw-bold">
+                    <div className="h5 fw-bold" style={promotionalPriceStyle}>
                       ${item.promotionalPrice}
                     </div>
+                    {item.discountPercentage > 0 && (
+                      <Badge
+                        style={promotionBadgeStyle}
+                        className="ms-2"
+                      >
+                        -{item.discountPercentage}%
+                      </Badge>
+                    )}
                   </div>
                 ) : (
                   <div className="h5 fw-bold">
@@ -76,7 +104,7 @@ const Product = ({ item, isUserVerified, selectedBranchId, refreshCatalog }) => 
               </div>
 
               <Button
-                variant="primary"
+                style={buttonStyle}
                 onClick={handleShow}
               >
                 Ver Detalles
@@ -92,6 +120,7 @@ const Product = ({ item, isUserVerified, selectedBranchId, refreshCatalog }) => 
           loyaltyProgram={loyaltyProgram}
           selectedBranchId={selectedBranchId}
           refreshCatalog={refreshCatalog}
+          tenantUIConfig={tenantUIConfig}
         />
       </>
     )

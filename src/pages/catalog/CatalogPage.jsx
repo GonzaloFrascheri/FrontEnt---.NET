@@ -5,6 +5,7 @@ import { Spinner, Row, Dropdown } from 'react-bootstrap';
 import { findNearestBranch } from '../../helpers/utils';
 import Product from '../../components/Product';
 import { AuthContext } from '../../context/AuthContext';
+import { TenantContext } from '../../context/TenantContext';
 
 export default function CatalogPage() {
   const [catalog, setCatalog] = useState([]);
@@ -15,6 +16,7 @@ export default function CatalogPage() {
   const [userData, setUserData] = useState(null);
 
   const { getUserData } = useContext(AuthContext);
+  const { tenantUIConfig } = useContext(TenantContext);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const getCatalog = async () => {
@@ -94,7 +96,6 @@ export default function CatalogPage() {
 
   return (
     <div className="p-4">
-
       <div className="mb-4 w-100 d-flex justify-content-between align-items-center">
         <h2 className="mb-4">Productos</h2>
 
@@ -123,6 +124,7 @@ export default function CatalogPage() {
             isUserVerified={userData?.isVerified}
             selectedBranchId={selectedBranch?.id}
             refreshCatalog={getCatalog}
+            tenantUIConfig={tenantUIConfig}
           />
         ))}
 

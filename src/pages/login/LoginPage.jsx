@@ -1,13 +1,15 @@
- import React, { useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import AuthForm from '../../components/AuthForm';
 import { AuthContext } from '../../context/AuthContext';
 import { getMagicLink, googleLoginBackend } from '../../services/api';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../services/firebase';
+import { TenantContext } from '../../context/TenantContext';
 
 export default function LoginPage() {
   const { user, setUser, login: contextLogin } = useContext(AuthContext);
+  const { tenantUIConfig } = useContext(TenantContext);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -50,8 +52,7 @@ export default function LoginPage() {
   };
 
   const handleMagicLinkLogin = async (email) => {
-    const res = await getMagicLink(email);
-    console.log(res);
+    await getMagicLink(email);
   }
 
   if (user) return <Navigate to="/" replace />;
@@ -63,6 +64,7 @@ export default function LoginPage() {
         onSubmit={handleEmailPassword}
         googleLogin={handleGoogleLogin}
         magicLinkLogin={handleMagicLinkLogin}
+        tenantUIConfig={tenantUIConfig}
       />
     </>
   );

@@ -6,7 +6,8 @@ import { getMagicLink } from '../services/api';
 
 export default function AuthForm({
   onSubmit,
-  googleLogin
+  googleLogin,
+  tenantUIConfig
 }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,6 +15,13 @@ export default function AuthForm({
   const [magicLinkEmail, setMagicLinkEmail] = useState('');
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const tenantStyles = {
+    primaryColor: tenantUIConfig?.primaryColor || '#1976d2',
+    secondaryColor: tenantUIConfig?.secondaryColor || '#FFFF00',
+    logoUrl: tenantUIConfig?.logoUrl,
+    tenantName: tenantUIConfig?.tenantName
+  };
 
   const handleSubmit = e => {
     e.preventDefault();
@@ -47,6 +55,16 @@ export default function AuthForm({
   if (showMagicLink) {
     return (
       <div className="auth-card">
+        {tenantStyles.logoUrl && (
+          <div className="auth-card__header">
+            <img
+              src={tenantStyles.logoUrl}
+              alt={`${tenantStyles.tenantName} logo`}
+              className="auth-card__logo"
+            />
+          </div>
+        )}
+
         <h2 className="auth-card__title">
           {magicLinkSent ? 'Email Enviado' : 'Login con Magic Link'}
         </h2>
@@ -56,13 +74,18 @@ export default function AuthForm({
             <p className="auth-card__message">
               Hemos enviado un enlace a:
             </p>
-            <p className="auth-card__email" style={{ color: '#0D6EFD' }}>{magicLinkEmail}</p>
+            <p className="auth-card__email" style={{ color: tenantStyles.primaryColor }}>{magicLinkEmail}</p>
             <p className="auth-card__message">
               Haz clic en el enlace del email para iniciar sesión automáticamente.
             </p>
             <button
               onClick={handleBackToLogin}
               className="auth-card__button auth-card__button--secondary"
+              style={{
+                backgroundColor: tenantStyles.secondaryColor,
+                color: '#333',
+                border: `1px solid ${tenantStyles.primaryColor}`
+              }}
             >
               Volver al Login
             </button>
@@ -79,13 +102,24 @@ export default function AuthForm({
                 required
               />
             </label>
-            <button type="submit" className="auth-card__button">
+            <button
+              type="submit"
+              className="auth-card__button"
+              style={{ backgroundColor: tenantStyles.primaryColor }}
+            >
               {loading ? <Spinner animation="border" size="sm" /> : "Enviar Magic Link"}
             </button>
             <button
               type="button"
               onClick={handleBackToLogin}
-              style={{ background: 'none', border: 'none', padding: 0, margin: '10px 0', textDecoration: 'underline', color: '#0D6EFD' }}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                margin: '10px 0',
+                textDecoration: 'underline',
+                color: tenantStyles.primaryColor
+              }}
             >
               Volver
             </button>
@@ -97,6 +131,16 @@ export default function AuthForm({
 
   return (
     <div className="auth-card">
+      {tenantStyles.logoUrl && (
+        <div className="auth-card__header">
+          <img
+            src={tenantStyles.logoUrl}
+            alt={`${tenantStyles.tenantName} logo`}
+            className="auth-card__logo"
+          />
+        </div>
+      )}
+
       <h2 className="auth-card__title">Login</h2>
       <form onSubmit={handleSubmit} className="auth-card__form">
         <label className="auth-card__label">
@@ -119,7 +163,11 @@ export default function AuthForm({
             required
           />
         </label>
-        <button type="submit" className="auth-card__button">
+        <button
+          type="submit"
+          className="auth-card__button"
+          style={{ backgroundColor: tenantStyles.primaryColor }}
+        >
           Ingresar
         </button>
       </form>
@@ -128,7 +176,14 @@ export default function AuthForm({
 
       <button
         onClick={handleShowMagicLink}
-        style={{ background: 'none', border: 'none', padding: 0, margin: '10px 0', textDecoration: 'underline', color: '#0D6EFD' }}
+        style={{
+          background: 'none',
+          border: 'none',
+          padding: 0,
+          margin: '10px 0',
+          textDecoration: 'underline',
+          color: tenantStyles.primaryColor
+        }}
       >
         Login con Magic Link
       </button>
@@ -137,7 +192,7 @@ export default function AuthForm({
 
       <p>
         ¿No tienes cuenta?{' '}
-        <Link to="/register" className="auth-card__link">
+        <Link to="/register" className="auth-card__link" style={{ color: tenantStyles.primaryColor }}>
           Regístrate
         </Link>
       </p>
