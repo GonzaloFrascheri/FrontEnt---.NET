@@ -44,7 +44,7 @@ const ServicePage = () => {
         setSelectedBranch(firstBranch);
       }
     }
-  }, [userLocation, branches]);
+  }, [userLocation]);
 
   useEffect(() => {
     if (selectedBranch) {

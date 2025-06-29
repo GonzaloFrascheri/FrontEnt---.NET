@@ -1,11 +1,16 @@
+
 // src/pages/verifyAge/VerifyIdentityPage.jsx
 import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Container, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { verifyIdentity } from '../../services/api';
 import { TenantContext } from '../../context/TenantContext';
+import { AuthContext } from '../../context/AuthContext';
 
 export default function VerifyIdentityPage() {
+  const { tenantUIConfig } = useContext(TenantContext);
+  const { userData } = useContext(AuthContext);
+
   const navigate = useNavigate();
   const [form, setForm] = useState({
     documentNumber: '',
@@ -13,7 +18,6 @@ export default function VerifyIdentityPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const { tenantUIConfig } = useContext(TenantContext);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -26,8 +30,8 @@ export default function VerifyIdentityPage() {
     setSuccess('');
     setLoading(true);
     try {
-      await verifyIdentity(form);
-      setSuccess('Verificación exitosa. Ahora puedes canjear productos con restricción.');
+      await verifyIdentity(form.documentNumber);
+      setSuccess('Verificación exitosa.');
       setTimeout(() => navigate('/'), 1500);
     } catch (err) {
       setError(err.response?.data?.message || 'Error en verificación.');
@@ -35,6 +39,25 @@ export default function VerifyIdentityPage() {
       setLoading(false);
     }
   };
+
+  if (userData?.isVerified) {
+    return (
+      <Container className="d-flex justify-content-center align-items-center py-5">
+        <Col xs={12} sm={8} md={6} lg={5}>
+          <Card className="shadow-sm">
+            <Card.Body>
+              <Card.Title className="text-center mb-4" style={{ color: tenantUIConfig?.primaryColor }}>
+              🧍🏻 Ya realizaste la verificación de edad e identidad
+              </Card.Title>
+              <Card.Text className="text-center">
+                <a href="/" className="btn btn-primary" style={{ backgroundColor: tenantUIConfig?.primaryColor }}>Volver a la página principal</a>
+              </Card.Text>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Container>
+    );
+  }
 
   return (
     <Container className="d-flex justify-content-center align-items-center py-5">

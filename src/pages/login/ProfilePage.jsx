@@ -82,7 +82,7 @@ export default function ProfilePage() {
                                 <Form.Check
                                     type="checkbox"
                                     id="default-checkbox"
-                                    label="+18"
+                                    label="Verificado"
                                     defaultChecked={profile.isVerified}
                                     disabled
                                 />

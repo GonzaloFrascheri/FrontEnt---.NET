@@ -278,9 +278,11 @@ export async function getFuelPrices(branchId) {
  * @param {{ documentNumber: string }} data
  * @returns {Promise<Object>}
  */
-export async function verifyIdentity(data) {
-  const response = await api.post('/VEAI', data);
-  return response.data;
+export async function verifyIdentity(ci) {
+  const response = await api.post('/VEAI', {
+    "DocumentNumber": ci
+  });
+  return response.data.data;
 }
 
 /*--------------------------------PERFIL DE USUARIO--------------------------------*/
@@ -346,6 +348,8 @@ export async function getServicesCatalog(branchId) {
   const response = await api.get(`/Service/branch/${branchId}`);
   return response.data.data;
 }
+
+/*--------------------------------*********************************--------------------------------*/
 
 api.interceptors.request.use(config => {
   // Chequea si la URL es pública y NO debería llevar token
