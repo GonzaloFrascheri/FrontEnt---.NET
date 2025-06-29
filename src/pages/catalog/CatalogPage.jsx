@@ -2,10 +2,11 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { getBranches, getCatalogWithStock } from '../../services/api';
 import { Spinner, Row, Dropdown } from 'react-bootstrap';
-import { findNearestBranch } from '../../helpers/utils';
+import { findNearestBranch, getUserLocationByIP } from '../../helpers/utils';
 import Product from '../../components/Product';
 import { AuthContext } from '../../context/AuthContext';
 import { TenantContext } from '../../context/TenantContext';
+import DropdownComponent from '../../components/Dropdown';
 
 export default function CatalogPage() {
   const [catalog, setCatalog] = useState([]);
@@ -23,7 +24,6 @@ export default function CatalogPage() {
     secondaryColor: tenantUIConfig?.secondaryColor || '#FFFF00',
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const getCatalog = async () => {
     if (selectedBranch) {
       const catalog = await getCatalogWithStock(selectedBranch.id);
@@ -32,38 +32,23 @@ export default function CatalogPage() {
     }
   }
 
-  const getUserLocationByIP = async () => {
-    try {
-      const response = await fetch('http://ip-api.com/json/');
-      const data = await response.json();
-
-      if (data.status === 'success' && data.lat && data.lon) {
-        setUserLocation({
-          lat: parseFloat(data.lat),
-          lng: parseFloat(data.lon),
-          method: 'ip'
-        });
-        return true;
-      }
-    } catch (error) {
-      console.warn('Error obteniendo ubicación por IP (backup):', error);
-    }
-
-    return false;
-  };
-
   useEffect(() => {
     getBranches().then(data => {
       const branches = Array.isArray(data.data) ? data.data : [];
       const mapped = branches.map(b => ({
         id: b.id,
+        name: b.tenant?.name ?? "Estación",
         address: b.address,
         lat: parseFloat(b.latitud),
         lng: parseFloat(b.longitud),
       })).filter(st => !isNaN(st.lat) && !isNaN(st.lng));
       setBranches(mapped);
 
-      getUserLocationByIP();
+      getUserLocationByIP().then(location => {
+        if (location) {
+          setUserLocation(location);
+        }
+      });
     });
   }, []);
 
@@ -77,24 +62,22 @@ export default function CatalogPage() {
         setSelectedBranch(firstBranch);
       }
     }
-    setLoading(false);
   }, [userLocation, branches]);
 
   useEffect(() => {
     if (selectedBranch) {
       getCatalogWithStock(selectedBranch.id).then(data => {
         setCatalog(data)
+        setLoading(false);
       });
     }
-
-    setLoading(false);
   }, [selectedBranch]);
 
   useEffect(() => {
     getUserData().then(data => {
       setUserData(data)
     })
-  }, [getUserData])
+  }, [getUserData]);
 
   if (loading) return <Spinner animation="border" className="d-block mx-auto my-5" />;
 
@@ -103,65 +86,15 @@ export default function CatalogPage() {
       <div className="mb-4 w-100 d-flex justify-content-between align-items-center">
         <h2 className="mb-4" style={{ color: tenantStyles.primaryColor }}>Productos</h2>
 
-        <Dropdown>
-          <Dropdown.Toggle
-            style={{
-              backgroundColor: tenantStyles.primaryColor,
-              borderColor: tenantStyles.primaryColor,
-              color: 'white'
-            }}
-            onMouseOver={(e) => {
-              e.target.style.backgroundColor = tenantStyles.secondaryColor;
-              e.target.style.borderColor = tenantStyles.secondaryColor;
-              e.target.style.color = '#333';
-            }}
-            onMouseOut={(e) => {
-              e.target.style.backgroundColor = tenantStyles.primaryColor;
-              e.target.style.borderColor = tenantStyles.primaryColor;
-              e.target.style.color = 'white';
-            }}
-          >
-            {selectedBranch?.address}
-          </Dropdown.Toggle>
-          <Dropdown.Menu
-            style={{
-              border: `2px solid ${tenantStyles.primaryColor}`,
-              borderRadius: '8px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-            }}
-          >
-            {branches.map(branch => (
-              <Dropdown.Item
-                key={branch.id}
-                value={branch.id}
-                onClick={() => {
-                  setSelectedBranch(branch)
-                }}
-                style={{
-                  backgroundColor: selectedBranch?.id === branch.id ? tenantStyles.primaryColor : 'transparent',
-                  color: selectedBranch?.id === branch.id ? 'white' : '#333',
-                  fontWeight: selectedBranch?.id === branch.id ? 'bold' : 'normal',
-                  position: 'relative',
-                  padding: '10px 15px'
-                }}
-                onMouseOver={(e) => {
-                  if (selectedBranch?.id !== branch.id) {
-                    e.target.style.backgroundColor = `${tenantStyles.primaryColor}20`;
-                    e.target.style.color = tenantStyles.primaryColor;
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (selectedBranch?.id !== branch.id) {
-                    e.target.style.backgroundColor = 'transparent';
-                    e.target.style.color = '#333';
-                  }
-                }}
-              >
-                {branch.address}
-              </Dropdown.Item>
-            ))}
-          </Dropdown.Menu>
-        </Dropdown>
+        <DropdownComponent
+          items={branches.map(branch => ({
+            id: branch.id,
+            label: branch.address
+          }))}
+          selectedItemId={selectedBranch?.id}
+          setSelectedItemId={(id) => setSelectedBranch(branches.find(branch => branch.id === id))}
+          tenantStyles={tenantStyles}
+        />
       </div>
 
       <Row xs={1} sm={2} md={3} lg={3} className="g-4">

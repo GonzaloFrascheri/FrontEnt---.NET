@@ -14,6 +14,7 @@ import StationsMapPage from './pages/map/StationsMapPage';
 import BalancePage from './pages/balance/BalancePage';
 import FuelsPage from './pages/fuel/FuelsPage';
 import ValidateMagicLinkPage from './pages/login/ValidateMagicLinkPage';
+import ServicePage from './pages/services/ServicePage';
 
 import { AuthProvider } from './context/AuthContext';
 import { AuthContext } from './context/AuthContext';
@@ -55,6 +56,7 @@ export default function AppRoutes() {
           <Route path="balance" element={<BalancePage />} />
           <Route path="verify" element={<VerifyIdentityPage />} />
           <Route path="fuels" element={<FuelsPage />} />
+          <Route path="services" element={<ServicePage />} />
         </Route>
 
         {/* Cualquier otro path vuelve al login */}

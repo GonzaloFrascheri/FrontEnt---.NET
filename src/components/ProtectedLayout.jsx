@@ -33,10 +33,11 @@ export default function ProtectedLayout() {
       ]
     },
     {
-      title: 'Productos',
+      title: 'Catálogo',
       icon: <Cart className="me-2" />,
       items: [
-        { label: 'Productos', to: '/catalog' }
+        { label: 'Productos', to: '/catalog' },
+        { label: 'Servicios', to: '/services' }
       ]
     },
     {
