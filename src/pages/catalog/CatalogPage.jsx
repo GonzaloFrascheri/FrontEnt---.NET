@@ -28,7 +28,6 @@ export default function CatalogPage() {
     if (selectedBranch) {
       const catalog = await getCatalogWithStock(selectedBranch.id);
       setCatalog(catalog);
-      setLoading(false);
     }
   }
 
@@ -62,7 +61,7 @@ export default function CatalogPage() {
         setSelectedBranch(firstBranch);
       }
     }
-  }, [userLocation, branches]);
+  }, [userLocation]);
 
   useEffect(() => {
     if (selectedBranch) {
