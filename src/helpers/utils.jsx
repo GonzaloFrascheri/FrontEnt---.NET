@@ -27,4 +27,23 @@ const findNearestBranch = (userLat, userLng, branchesList) => {
   return nearestBranch;
 };
 
-  export { findNearestBranch, calculateDistance };
+const getUserLocationByIP = async () => {
+  try {
+    const response = await fetch('http://ip-api.com/json/');
+    const data = await response.json();
+
+    if (data.status === 'success' && data.lat && data.lon) {
+      return {
+        lat: parseFloat(data.lat),
+        lng: parseFloat(data.lon),
+        method: 'ip'
+      };
+    }
+  } catch (error) {
+    console.warn('Error obteniendo ubicación por IP (backup):', error);
+  }
+
+  return null;
+};
+
+export { findNearestBranch, calculateDistance, getUserLocationByIP };

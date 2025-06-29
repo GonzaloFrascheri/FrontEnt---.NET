@@ -12,6 +12,20 @@ import defaultImage from '../assets/default.jpg'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
+const SERVICE_ICONS = {
+  'Lavado de Vidrios': '🧽',
+  'Lavado de Auto': '🚗',
+  'Lavado de Motor': '🔧',
+  'Cambio de Aceite': '🚗',
+  'Revisión Técnica': '👩‍🔧',
+  'Inflado de Neumáticos': '🛞',
+  'Limpieza Interior': '🧹',
+  'Pulido': '✨',
+  'Encerado': '🪔',
+  'Aspirado': '🧹',
+  'default': '🧽'
+};
+
 const ModalComprar = ({
   selectedBranchId,
   showModal,
@@ -20,6 +34,7 @@ const ModalComprar = ({
   loyaltyProgram,
   refreshCatalog,
   tenantUIConfig,
+  isService = false,
 }) => {
   const { refreshUserData } = useContext(AuthContext);
 
@@ -48,15 +63,19 @@ const ModalComprar = ({
     color: primaryColor
   };
 
+  const getServiceIcon = (serviceName) => {
+    return SERVICE_ICONS[serviceName] || SERVICE_ICONS.default;
+  };
+
   const handleQuantityChange = (newQuantity) => {
     const numQuantity = parseInt(newQuantity);
-    if (numQuantity >= 1 && numQuantity <= item.stock) {
+    if (numQuantity >= 1 && (!isService || numQuantity <= (item.stock || 999))) {
       setQuantity(numQuantity);
     }
   };
 
   const incrementQuantity = () => {
-    if (quantity < item.stock) {
+    if (isService || quantity < (item.stock || 999)) {
       setQuantity(quantity + 1);
     }
   };
@@ -71,6 +90,11 @@ const ModalComprar = ({
   const totalPoints = Math.ceil(totalPrice / (loyaltyProgram?.pointsValue || 1));
 
   const handleBuy = async () => {
+    if (isService) {
+      // Para servicios, mostrar mensaje de que aún no está implementado
+      alert('La compra de servicios aún no está implementada');
+      return;
+    }
     await createTransaction(selectedBranchId, item.id, quantity);
     setShowConfirmation(false);
     refreshUserData();
@@ -78,6 +102,11 @@ const ModalComprar = ({
   }
 
   const handleConfirmPurchase = () => {
+    if (isService) {
+      // Para servicios, mostrar mensaje de que aún no está implementado
+      alert('La compra de servicios aún no está implementada');
+      return;
+    }
     handleClose();
     setShowConfirmation(true);
   };
@@ -90,12 +119,17 @@ const ModalComprar = ({
   const handleCloseQr = async () => {
     setQrToken('');
     handleClose();
-    // Refresca ambos después de un canje exitoso
+
     await refreshUserData();
     await refreshCatalog();
   };
 
   const handleRedeemPoints = async () => {
+    if (isService) {
+      alert('El canje de servicios aún no está implementado');
+      return;
+    }
+
     setCanjeLoading(true);
     setCanjeError('');
     try {
@@ -112,7 +146,6 @@ const ModalComprar = ({
   };
 
   if (qrToken) {
-
     const redemptionUrl = `${API_BASE}/Redemption/process/${qrToken}`;
 
     return (
@@ -168,21 +201,33 @@ const ModalComprar = ({
 
         <Modal.Body>
           <div className="text-center mb-4">
-            <img
-              src={item.imageUrl || defaultImage}
-              alt={item.name}
-              className="img-fluid"
-              style={{
-                maxHeight: '200px',
-                width: 'auto',
-                objectFit: 'contain'
-              }}
-            />
+            {isService ? (
+              <div
+                style={{
+                  fontSize: '6rem',
+                  lineHeight: '1',
+                  marginBottom: '1rem'
+                }}
+              >
+                {getServiceIcon(item.name)}
+              </div>
+            ) : (
+              <img
+                src={item.imageUrl || defaultImage}
+                alt={item.name}
+                className="img-fluid"
+                style={{
+                  maxHeight: '200px',
+                  width: 'auto',
+                  objectFit: 'contain'
+                }}
+              />
+            )}
           </div>
 
           <div className="mb-3">
             <h5>Descripción</h5>
-            <p>{item.descripcion}</p>
+            <p>{item.description || item.descripcion || 'Servicio disponible en esta estación'}</p>
           </div>
 
           <div className="row mb-3">
@@ -190,10 +235,12 @@ const ModalComprar = ({
               <h6>Precio Unitario</h6>
               <p className="fw-bold" style={priceStyle}>${item.price}</p>
             </div>
-            <div className="col-6">
-              <h6>Stock Disponible</h6>
-              <p className="text-success fw-bold">{item.stock} unidades</p>
-            </div>
+            {!isService && (
+              <div className="col-6">
+                <h6>Stock Disponible</h6>
+                <p className="text-success fw-bold">{item.stock} unidades</p>
+              </div>
+            )}
           </div>
 
           <div className="mb-3">
@@ -210,70 +257,59 @@ const ModalComprar = ({
                 type="number"
                 value={quantity}
                 onChange={(e) => handleQuantityChange(e.target.value)}
-                min={1}
-                max={item.stock}
+                min="1"
+                max={isService ? 999 : item.stock}
                 style={{ textAlign: 'center' }}
-                disabled
               />
               <Button
                 variant="outline-secondary"
                 onClick={incrementQuantity}
-                disabled={quantity >= item.stock}
+                disabled={isService ? false : quantity >= item.stock}
               >
                 +
               </Button>
             </InputGroup>
           </div>
 
-          <div className="mb-3 p-3 bg-light rounded">
-            <div className="row">
-              <div className="col-6">
-                <h6>Precio Total</h6>
-                <p className="fw-bold fs-5" style={priceStyle}>${totalPrice}</p>
-              </div>
-              <div className="col-6">
-                <h6>Puntos Necesarios</h6>
-                <p className="text-warning fw-bold fs-5">{totalPoints} pts</p>
-              </div>
-            </div>
+          <div className="mb-3">
+            <h6>Precio Total</h6>
+            <p className="fw-bold" style={priceStyle}>${totalPrice}</p>
           </div>
 
-          {item.costoPuntos && (
+          {loyaltyProgram && !isService && (
             <div className="mb-3">
-              <h6>Canjear con Puntos (Precio fijo)</h6>
-              <p className="text-warning fw-bold">{item.costoPuntos} puntos</p>
+              <h6>Puntos Necesarios</h6>
+              <p className="fw-bold" style={{ color: secondaryColor }}>{totalPoints} puntos</p>
             </div>
+          )}
+
+          {isService && (
+            <Alert variant="info">
+              <strong>Nota:</strong> La compra de servicios aún no está implementada. Esta funcionalidad estará disponible próximamente.
+            </Alert>
           )}
         </Modal.Body>
 
         <Modal.Footer>
-          <div className="d-flex justify-content-between w-100">
-            <Button variant="secondary" onClick={handleClose}>
-              Cancelar
+          <Button variant="secondary" onClick={handleClose}>
+            Cancelar
+          </Button>
+          {!isService && loyaltyProgram && (
+            <Button
+              style={secondaryButtonStyle}
+              onClick={handleRedeemPoints}
+              disabled={canjeLoading}
+            >
+              {canjeLoading ? <Spinner animation="border" size="sm" /> : 'Canjear con Puntos'}
             </Button>
-
-            <div className='d-flex gap-2'>
-              <Button
-                style={secondaryButtonStyle}
-                onClick={handleRedeemPoints}
-                disabled={canjeLoading || !!qrToken || (item.costoPuntos && item.costoPuntos > (loyaltyProgram?.userPoints || 0))}
-              >
-                {canjeLoading
-                  ? <Spinner animation="border" size="sm" />
-                  : item.costoPuntos
-                    ? `Canjear (${item.costoPuntos}pts)`
-                    : `Canjear (${totalPoints}pts)`
-                }
-              </Button>
-
-              <Button
-                style={primaryButtonStyle}
-                onClick={handleConfirmPurchase}
-              >
-                Comprar (${totalPrice})
-              </Button>
-            </div>
-          </div>
+          )}
+          <Button
+            style={primaryButtonStyle}
+            onClick={handleConfirmPurchase}
+            disabled={isService}
+          >
+            {isService ? 'Próximamente' : 'Comprar'}
+          </Button>
         </Modal.Footer>
       </Modal>
 
@@ -331,7 +367,7 @@ const ModalComprar = ({
         </Modal.Footer>
       </Modal>
     </>
-  )
-}
+  );
+};
 
-export default ModalComprar
+export default ModalComprar;

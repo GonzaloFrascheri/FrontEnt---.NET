@@ -337,6 +337,16 @@ export async function createTransaction(branchId, productId, quantity) {
   return response.data.data;
 }
 
+/*--------------------------------SERVICIOS--------------------------------*/
+
+/**
+ * Obtiene el catálogo de servicios para una estación.
+ */
+export async function getServicesCatalog(branchId) {
+  const response = await api.get(`/Service/branch/${branchId}`);
+  return response.data.data;
+}
+
 api.interceptors.request.use(config => {
   // Chequea si la URL es pública y NO debería llevar token
   if (
