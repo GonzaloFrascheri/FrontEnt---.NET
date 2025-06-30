@@ -304,7 +304,6 @@ export async function updateProfile(data) {
  */
 export async function getTransactionHistory() {
   const response = await api.get('/Transaction/history');
-  // response.data = { error, data: [ ... ], message }
   return response.data.data;
 }
 
@@ -315,7 +314,6 @@ export async function getTransactionHistory() {
  */
 export async function getTransactionItems(transactionId) {
   const response = await api.get(`/Transaction/${transactionId}/items`);
-  // response.data = { error, data: [ ... ], message }
   return response.data.data;
 }
 
@@ -349,7 +347,18 @@ export async function getServicesCatalog(branchId) {
   return response.data.data;
 }
 
-/*--------------------------------*********************************--------------------------------*/
+/*--------------------------------PROMOCIONES--------------------------------*/
+/**
+ * Obtiene las promociones de una estación.
+ * @param {number} branchId
+ * @returns {Promise<Array>} promociones
+ */
+export async function getBranchPromotions(branchId) {
+  const response = await api.get(`/Promotion/Branch/${branchId}`);
+  return response.data.data;
+}
+
+/*------------------------------------------------------------------------*/
 
 api.interceptors.request.use(config => {
   // Chequea si la URL es pública y NO debería llevar token

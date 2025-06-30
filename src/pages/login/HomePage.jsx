@@ -1,25 +1,103 @@
 // src/pages/login/HomePage.jsx
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Container,
   Row,
   Col,
   Card,
   Carousel,
-  Button
+  Button,
+  Badge
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { TenantContext } from '../../context/TenantContext';
 import bg from '../../../src/assets/4-9.jpg';
+import { getBranches, getBranchPromotions } from '../../services/api';
+import { findNearestBranch, getUserLocationByIP } from '../../helpers/utils';
 
 export default function HomePage() {
   const { tenantUIConfig } = useContext(TenantContext);
 
-  const promotions = [
-    { title: '☕️ Café de especialidad', text: 'Canjea 200 puntos por un café' },
-    { title: '⛽️ 50% Combustible',      text: 'Mitad de precio en nafta 95' },
-    { title: '🎁 Merchandising',        text: 'Artículos por 500 puntos' },
-  ];
+  const [promotions, setPromotions] = useState([]);
+  const [nearestStation, setNearestStation] = useState(null);
+
+  useEffect(() => {
+    getBranches().then(data => {
+      const branches = Array.isArray(data.data) ? data.data : [];
+
+      const mappedBranches = branches
+        .map(b => ({
+          id: b.id,
+          name: b.tenant?.name ?? "Estación",
+          address: b.address,
+          lat: parseFloat(b.latitud),
+          lng: parseFloat(b.longitud),
+        }))
+        .filter(st => !isNaN(st.lat) && !isNaN(st.lng));
+
+      getUserLocationByIP().then(location => {
+        if (location) {
+          const nearest = findNearestBranch(location.lat, location.lng, mappedBranches);
+          setNearestStation(nearest);
+        }
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (nearestStation) {
+      getBranchPromotions(nearestStation.id).then(data => {
+        const allProducts = data.flatMap(promo =>
+          promo.products ? promo.products.map(product => ({
+            ...product,
+            promotionId: promo.promotionId,
+            promotionPrice: promo.price,
+            startDate: promo.startDate,
+            endDate: promo.endDate,
+            description: promo.description,
+            tenantId: promo.tenantId
+          })) : []
+        );
+
+        const productGroups = allProducts.reduce((groups, product) => {
+          const key = product.name.toLowerCase().trim();
+          if (!groups[key] || product.promotionPrice < groups[key].promotionPrice) {
+            groups[key] = product;
+          }
+          return groups;
+        }, {});
+
+        const processedPromotions = Object.values(productGroups).map(product => ({
+          promotionId: product.promotionId,
+          description: product.description,
+          startDate: product.startDate,
+          endDate: product.endDate,
+          price: product.promotionPrice,
+          tenantId: product.tenantId,
+          products: [product],
+          displayProduct: product
+        }));
+
+        setPromotions(processedPromotions);
+      });
+    }
+  }, [nearestStation]);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('es-UY', {
+      style: 'currency',
+      currency: 'UYU'
+    }).format(price);
+  };
 
   return (
     <Container fluid className="p-0">
@@ -54,60 +132,131 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="py-5">
+      {promotions.length > 0 && (
+        <div className="py-5">
         <Container>
-          <Row className="justify-content-center mb-4">
+          <Row className="mb-4">
             <Col xs="auto">
-              <h2 style={{ color: tenantUIConfig?.primaryColor }}>Promociones Destacadas</h2>
+              <h2 style={{ color: tenantUIConfig?.primaryColor }}>Promociones Destacadas 🎉</h2>
+              <span className="text-muted">Estas promociones corresponden a la estación de servicio más cercana a tu ubicación</span>
             </Col>
           </Row>
         </Container>
 
         <Carousel
           fade
-          interval={3000}
+          interval={4000}
           controls={false}
           indicators
-          className="promo-carousel shadow-sm"
+          className="promo-carousel"
         >
           {promotions.map((promo, idx) => (
-            <Carousel.Item key={idx}>
-              <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
+            <Carousel.Item key={`${promo.id}-${idx}`}>
+              <div className="d-flex justify-content-center align-items-center" style={{ height: '350px' }}>
                 <Card
-                  className="mx-3 p-4 text-center"
-                  style={{ maxWidth: 400, minWidth: 300 }}
+                  className="mx-3 p-4 text-center shadow"
+                  style={{ maxWidth: 450, minWidth: 350 }}
                 >
-                  <Card.Title className="display-6">
-                    {promo.title}
-                  </Card.Title>
-                  <Card.Text>{promo.text}</Card.Text>
-                  <Button
-                    as={Link}
-                    to="/redeem"
-                    variant="outline-primary"
-                    style={{
-                      borderColor: tenantUIConfig?.primaryColor,
-                      color: tenantUIConfig?.primaryColor
-                    }}
-                    onMouseOver={(e) => {
-                      e.target.style.backgroundColor = tenantUIConfig?.primaryColor;
-                      e.target.style.color = 'white';
-                    }}
-                    onMouseOut={(e) => {
-                      e.target.style.backgroundColor = 'transparent';
-                      e.target.style.color = tenantUIConfig?.primaryColor;
-                    }}
-                  >
-                    Canjear ahora
-                  </Button>
+                  <div className="mb-3">
+                    <div className="d-flex justify-content-between text-muted small">
+                      <span>Desde: {formatDate(promo.startDate)}</span>
+                      <span>Hasta: {formatDate(promo.endDate)}</span>
+                    </div>
+                  </div>
+
+                  <div className="mb-3">
+                    {promo.displayProduct ? (
+                      <div className="p-3 border rounded">
+                        <div className="d-flex align-items-center">
+                          {promo.displayProduct.imageUrl && (
+                            <img
+                              src={promo.displayProduct.imageUrl}
+                              alt={promo.displayProduct.name}
+                              style={{
+                                width: '80px',
+                                height: '80px',
+                                objectFit: 'cover',
+                                borderRadius: '12px',
+                                marginRight: '20px'
+                              }}
+                            />
+                          )}
+                          <div className="flex-grow-1 text-start">
+                            <h5 className="mb-2 fw-bold">{promo.displayProduct.name}</h5>
+                            {promo.displayProduct.description && (
+                              <p className="text-muted mb-2">{promo.displayProduct.description}</p>
+                            )}
+                            <div className="d-flex justify-content-between align-items-center">
+                              <div>
+                                <span className="text-muted small">Precio normal: </span>
+                                <span className="fw-bold text-primary fs-5">
+                                  {formatPrice(promo.displayProduct.price)}
+                                </span>
+                              </div>
+                              {promo.displayProduct.ageRestricted && (
+                                <Badge bg="warning" text="dark">+18</Badge>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : promo.products && promo.products.length > 0 ? (
+                      <div className="p-3 border rounded">
+                        <div className="d-flex align-items-center">
+                          {promo.products[0].imageUrl && (
+                            <img
+                              src={promo.products[0].imageUrl}
+                              alt={promo.products[0].name}
+                              style={{
+                                width: '80px',
+                                height: '80px',
+                                objectFit: 'cover',
+                                borderRadius: '12px',
+                                marginRight: '20px'
+                              }}
+                            />
+                          )}
+                          <div className="flex-grow-1 text-start">
+                            <h5 className="mb-2 fw-bold">{promo.products[0].name}</h5>
+                            {promo.products[0].description && (
+                              <p className="text-muted mb-2">{promo.products[0].description}</p>
+                            )}
+                            <div className="d-flex justify-content-between align-items-center">
+                              <div>
+                                <span className="text-muted small">Precio normal: </span>
+                                <span className="fw-bold text-primary fs-5">
+                                  {formatPrice(promo.products[0].price)}
+                                </span>
+                              </div>
+                              {promo.products[0].ageRestricted && (
+                                <Badge bg="warning" text="dark">+18</Badge>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-3 border rounded text-center">
+                        <p className="text-muted">No hay productos disponibles</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mb-3">
+                    <div className="d-flex justify-content-between align-items-center p-3 bg-success bg-opacity-10 rounded">
+                      <span className="fw-bold">Precio promocional:</span>
+                      <span className="h4 mb-0 text-success fw-bold">{formatPrice(promo.price)}</span>
+                    </div>
+                  </div>
                 </Card>
               </div>
             </Carousel.Item>
           ))}
         </Carousel>
       </div>
+      )}
 
-      <Container className="pb-5">
+      <Container className="pb-5 mt-5">
         <Row className="justify-content-center">
           <Col className="text-center">
             <Button

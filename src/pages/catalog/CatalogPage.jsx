@@ -1,7 +1,7 @@
 // src/pages/catalog/CatalogPage.jsx
 import React, { useState, useEffect, useContext } from 'react';
 import { getBranches, getCatalogWithStock } from '../../services/api';
-import { Spinner, Row, Dropdown } from 'react-bootstrap';
+import { Spinner, Row } from 'react-bootstrap';
 import { findNearestBranch, getUserLocationByIP } from '../../helpers/utils';
 import Product from '../../components/Product';
 import { AuthContext } from '../../context/AuthContext';
