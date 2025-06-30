@@ -1,14 +1,25 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { login as apiLogin, getUser } from '../services/api';
+import { login as apiLogin, getUser, getGeneralParameters } from '../services/api';
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);      // token y datos mínimos
-  const [userData, setUserData] = useState(null); // datos extendidos: email, branchId, etc.
+  const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [tenantParameters, setTenantParameters] = useState(null);
 
-  // Al iniciar (o refrescar), cargá token y perfil
+  const loadTenantParameters = async () => {
+    try {
+      const parameters = await getGeneralParameters();
+      setTenantParameters(parameters);
+      return parameters;
+    } catch (error) {
+      console.error('Error loading tenant parameters:', error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     const initializeAuth = async () => {
       try {
@@ -35,6 +46,8 @@ export function AuthProvider({ children }) {
             console.warn('Error fetching fresh user data:', error);
           }
         }
+
+        await loadTenantParameters();
       } catch (error) {
         console.error('Error initializing auth:', error);
       } finally {
@@ -62,10 +75,11 @@ export function AuthProvider({ children }) {
         localStorage.setItem('auth_token', token);
         setUser({ token });
 
-        // Cargar datos del usuario inmediatamente después del login
         const userData = await getUser();
         setUserData(userData.data);
         localStorage.setItem('user_data', JSON.stringify(userData.data));
+
+        await loadTenantParameters();
       } else {
         throw new Error('Login fallido');
       }
@@ -75,16 +89,17 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Login con token (para magic link)
   const loginWithToken = async ({ token }) => {
     try {
       localStorage.setItem('auth_token', token);
       setUser({ token });
 
-      // Trae el perfil extendido
       const profile = await getProfile();
       setUserData(profile);
       localStorage.setItem('user_data', JSON.stringify(profile));
+
+      // Recargar parámetros del tenant después del login
+      await loadTenantParameters();
     } catch (error) {
       console.error('Error obteniendo perfil:', error);
       throw error;
@@ -96,6 +111,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('user_data');
     setUser(null);
     setUserData(null);
+    setTenantParameters(null);
   };
 
   const getUserData = async () => {
@@ -125,6 +141,10 @@ export function AuthProvider({ children }) {
     }
   }
 
+  const refreshTenantParameters = async () => {
+    return await loadTenantParameters();
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -136,7 +156,9 @@ export function AuthProvider({ children }) {
       login,
       loginWithToken,
       logout,
-      loading
+      loading,
+      tenantParameters,
+      refreshTenantParameters
     }}>
       {children}
     </AuthContext.Provider>

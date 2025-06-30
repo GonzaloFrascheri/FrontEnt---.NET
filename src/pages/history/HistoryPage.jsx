@@ -3,6 +3,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Container, Card, Table, Modal, Button } from 'react-bootstrap';
 import { getTransactionHistory, getTransactionItems } from '../../services/api';
 import { TenantContext } from '../../context/TenantContext';
+import { AuthContext } from '../../context/AuthContext';
 
 import defaultImage from '../../assets/default.jpg';
 
@@ -13,6 +14,7 @@ export default function HistoryPage() {
   const [detail, setDetail] = useState([]);
   const [selectedTx, setSelectedTx] = useState(null);
   const { tenantUIConfig } = useContext(TenantContext);
+  const { tenantParameters } = useContext(AuthContext);
 
   useEffect(() => {
     setLoading(true);
@@ -20,6 +22,15 @@ export default function HistoryPage() {
       .then(data => setHistory(data))
       .finally(() => setLoading(false));
   }, []);
+
+  const formatPrice = (price) => {
+    const currency = tenantParameters?.find(param => param.key === 'Currency')?.value || 'USD';
+
+    return new Intl.NumberFormat('es-UY', {
+      style: 'currency',
+      currency: currency
+    }).format(price);
+  };
 
   const handleShowDetail = async (tx) => {
     setSelectedTx(tx);
@@ -98,8 +109,8 @@ export default function HistoryPage() {
                       {item.productName}
                     </td>
                     <td>{item.quantity}</td>
-                    <td>${item.unitPrice?.toFixed(2)}</td>
-                    <td>${(item.unitPrice * item.quantity).toFixed(2)}</td>
+                    <td>{formatPrice(item.unitPrice)}</td>
+                    <td>{formatPrice(item.unitPrice * item.quantity)}</td>
                   </tr>
                 ))}
               </tbody>

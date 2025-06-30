@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Card, Col, Button, Badge } from 'react-bootstrap';
+import { AuthContext } from '../context/AuthContext';
 
 import ModalComprar from './ModalComprar';
 import { getLoyaltyProgram } from '../services/api';
@@ -9,6 +10,7 @@ import defaultImage from '../assets/default.jpg';
 const Product = ({ item, isUserVerified, selectedBranchId, refreshCatalog, tenantUIConfig }) => {
   const [showModal, setShowModal] = useState(false);
   const [loyaltyProgram, setLoyaltyProgram] = useState(null);
+  const { tenantParameters } = useContext(AuthContext);
 
   const handleClose = () => setShowModal(false);
   const handleShow = () => setShowModal(true);
@@ -38,6 +40,15 @@ const Product = ({ item, isUserVerified, selectedBranchId, refreshCatalog, tenan
 
   const promotionalPriceStyle = {
     color: secondaryColor
+  };
+
+  const formatPrice = (price) => {
+    const currency = tenantParameters?.find(param => param.key === 'Currency')?.value || 'USD';
+
+    return new Intl.NumberFormat('es-UY', {
+      style: 'currency',
+      currency: currency
+    }).format(price);
   };
 
   if ((!item.ageRestricted) || (item.ageRestricted && isUserVerified)) {
@@ -82,15 +93,15 @@ const Product = ({ item, isUserVerified, selectedBranchId, refreshCatalog, tenan
                 {item.hasPromotion ? (
                   <div>
                     <div className="text-decoration-line-through text-muted">
-                      ${item.originalPrice}
+                      {formatPrice(item.originalPrice)}
                     </div>
                     <div className="h5 fw-bold" style={promotionalPriceStyle}>
-                      ${item.promotionalPrice}
+                      {formatPrice(item.promotionalPrice)}
                     </div>
                   </div>
                 ) : (
                   <div className="h5 fw-bold">
-                    ${item.price}
+                    {formatPrice(item.price)}
                   </div>
                 )}
               </div>

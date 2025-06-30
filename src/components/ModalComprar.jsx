@@ -36,7 +36,7 @@ const ModalComprar = ({
   tenantUIConfig,
   isService = false,
 }) => {
-  const { refreshUserData } = useContext(AuthContext);
+  const { refreshUserData, tenantParameters } = useContext(AuthContext);
 
   const [quantity, setQuantity] = useState(1);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -61,6 +61,15 @@ const ModalComprar = ({
 
   const priceStyle = {
     color: primaryColor
+  };
+
+  const formatPrice = (price) => {
+    const currency = tenantParameters?.find(param => param.key === 'Currency')?.value || 'USD';
+
+    return new Intl.NumberFormat('es-UY', {
+      style: 'currency',
+      currency: currency
+    }).format(price);
   };
 
   const getServiceIcon = (serviceName) => {
@@ -91,7 +100,6 @@ const ModalComprar = ({
 
   const handleBuy = async () => {
     if (isService) {
-      // Para servicios, mostrar mensaje de que aún no está implementado
       alert('La compra de servicios aún no está implementada');
       return;
     }
@@ -103,7 +111,6 @@ const ModalComprar = ({
 
   const handleConfirmPurchase = () => {
     if (isService) {
-      // Para servicios, mostrar mensaje de que aún no está implementado
       alert('La compra de servicios aún no está implementada');
       return;
     }
@@ -233,7 +240,7 @@ const ModalComprar = ({
           <div className="row mb-3">
             <div className="col-6">
               <h6>Precio Unitario</h6>
-              <p className="fw-bold" style={priceStyle}>${item.price}</p>
+              <p className="fw-bold" style={priceStyle}>{formatPrice(item.price)}</p>
             </div>
             {!isService && (
               <div className="col-6">
@@ -273,7 +280,7 @@ const ModalComprar = ({
 
           <div className="mb-3">
             <h6>Precio Total</h6>
-            <p className="fw-bold" style={priceStyle}>${totalPrice}</p>
+            <p className="fw-bold" style={priceStyle}>{formatPrice(totalPrice)}</p>
           </div>
 
           {loyaltyProgram && !isService && (
@@ -341,11 +348,11 @@ const ModalComprar = ({
             </div>
             <div className="col-4">
               <small className="text-muted">Precio Unitario</small>
-              <p className="fw-bold">${item.price}</p>
+              <p className="fw-bold">{formatPrice(item.price)}</p>
             </div>
             <div className="col-4">
               <small className="text-muted">Total</small>
-              <p className="fw-bold text-primary">${totalPrice}</p>
+              <p className="fw-bold text-primary">{formatPrice(totalPrice)}</p>
             </div>
           </div>
 

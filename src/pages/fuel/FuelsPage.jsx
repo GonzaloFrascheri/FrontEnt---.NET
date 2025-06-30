@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { getBranches, getFuelPrices } from "../../services/api";
 import { Spinner, Row, Dropdown, Container, Card, Col, Alert } from "react-bootstrap";
 import { TenantContext } from "../../context/TenantContext";
+import { AuthContext } from "../../context/AuthContext";
 
 const FUEL_NAMES = {
   0: { label: "Súper", icon: "⛽", css: "fuel-super" },
@@ -17,6 +18,7 @@ export default function FuelsPage() {
   const [fuelsLoading, setFuelsLoading] = useState(false);
   const [error, setError] = useState("");
   const { tenantUIConfig } = useContext(TenantContext);
+  const { tenantParameters } = useContext(AuthContext);
 
   useEffect(() => {
     setLoading(true);
@@ -38,6 +40,16 @@ export default function FuelsPage() {
       .catch(err => setError(err.message || "Error al cargar los precios."))
       .finally(() => setFuelsLoading(false));
   }, [selectedBranch]);
+
+  // Función para formatear precios con la moneda del tenant
+  const formatPrice = (price) => {
+    const currency = tenantParameters?.find(param => param.key === 'Currency')?.value || 'USD';
+
+    return new Intl.NumberFormat('es-UY', {
+      style: 'currency',
+      currency: currency
+    }).format(price);
+  };
 
   if (loading) return <Spinner animation="border" className="d-block mx-auto my-5" />;
 
@@ -84,7 +96,7 @@ export default function FuelsPage() {
                       {meta.label ?? `Tipo ${fuel.fuelType}`}
                     </Card.Title>
                     <Card.Text style={{ fontSize: "2.3rem", fontWeight: "bold", marginTop: 4, marginBottom: 0 }}>
-                      ${fuel.price.toFixed(2)}
+                      {formatPrice(fuel.price)}
                     </Card.Text>
                   </Card.Body>
                 </Card>
