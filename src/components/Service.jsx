@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Card, Col, Button, Badge } from 'react-bootstrap';
+import React, { useState, useContext } from 'react';
+import { Card, Col, Button } from 'react-bootstrap';
+import { AuthContext } from '../context/AuthContext';
 import ModalComprar from './ModalComprar';
 
 const SERVICE_ICONS = {
@@ -17,6 +18,7 @@ const SERVICE_ICONS = {
 
 const Service = ({ service, isUserVerified, selectedBranchId, tenantUIConfig }) => {
   const [showModal, setShowModal] = useState(false);
+  const { tenantParameters } = useContext(AuthContext);
 
   const handleClose = () => setShowModal(false);
   const handleShow = () => setShowModal(true);
@@ -27,6 +29,15 @@ const Service = ({ service, isUserVerified, selectedBranchId, tenantUIConfig }) 
     backgroundColor: primaryColor,
     borderColor: primaryColor,
     color: '#fff'
+  };
+
+  const formatPrice = (price) => {
+    const currency = tenantParameters?.find(param => param.key === 'Currency')?.value || 'USD';
+
+    return new Intl.NumberFormat('es-UY', {
+      style: 'currency',
+      currency: currency
+    }).format(price);
   };
 
   const getServiceIcon = (serviceName) => {
@@ -95,7 +106,7 @@ const Service = ({ service, isUserVerified, selectedBranchId, tenantUIConfig }) 
 
             <div className="mb-3">
               <div className="h5 fw-bold">
-                ${service.price}
+                {formatPrice(service.price)}
               </div>
             </div>
 

@@ -11,12 +11,14 @@ import {
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { TenantContext } from '../../context/TenantContext';
+import { AuthContext } from '../../context/AuthContext';
 import bg from '../../../src/assets/4-9.jpg';
 import { getBranches, getBranchPromotions } from '../../services/api';
 import { findNearestBranch, getUserLocationByIP } from '../../helpers/utils';
 
 export default function HomePage() {
   const { tenantUIConfig } = useContext(TenantContext);
+  const { tenantParameters } = useContext(AuthContext);
 
   const [promotions, setPromotions] = useState([]);
   const [nearestStation, setNearestStation] = useState(null);
@@ -93,9 +95,12 @@ export default function HomePage() {
   };
 
   const formatPrice = (price) => {
+    // Obtener la moneda de los parámetros del tenant, por defecto USD
+    const currency = tenantParameters?.find(param => param.key === 'Currency')?.value || 'USD';
+
     return new Intl.NumberFormat('es-UY', {
       style: 'currency',
-      currency: 'UYU'
+      currency: currency
     }).format(price);
   };
 
