@@ -16,6 +16,13 @@ export default defineConfig({
       hmr: {
         host: 'petrobras.app.servipuntos.local', // Para hot module replacement
       },
+    },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: false,
+        secure: false,
+      }
     }
   }
 })

@@ -39,7 +39,6 @@ export default function HistoryPage() {
     2: "Canje de productos por puntos"
   };
 
-  console.log(detail)
   return (
     <Container className="py-5">
       <Card className="shadow-sm">
