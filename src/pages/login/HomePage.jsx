@@ -14,7 +14,8 @@ import { TenantContext } from '../../context/TenantContext';
 import { AuthContext } from '../../context/AuthContext';
 import bg from '../../../src/assets/4-9.jpg';
 import { getBranches, getBranchPromotions } from '../../services/api';
-import { findNearestBranch, getUserLocationByIP } from '../../helpers/utils';
+import { findNearestBranch } from '../../helpers/utils';
+import { useUserLocation } from '../../hooks/getUserLocation';
 
 export default function HomePage() {
   const { tenantUIConfig } = useContext(TenantContext);
@@ -22,6 +23,9 @@ export default function HomePage() {
 
   const [promotions, setPromotions] = useState([]);
   const [nearestStation, setNearestStation] = useState(null);
+  
+  // Usar el hook de geolocalización
+  const { position, error: locationError } = useUserLocation();
 
   useEffect(() => {
     getBranches().then(data => {
@@ -37,14 +41,17 @@ export default function HomePage() {
         }))
         .filter(st => !isNaN(st.lat) && !isNaN(st.lng));
 
-      getUserLocationByIP().then(location => {
-        if (location) {
-          const nearest = findNearestBranch(location.lat, location.lng, mappedBranches);
-          setNearestStation(nearest);
-        }
-      });
+      if (position && !locationError && mappedBranches.length > 0) {
+        const [lat, lng] = position;
+        const nearest = findNearestBranch(lat, lng, mappedBranches);
+        setNearestStation(nearest);
+      } else if (mappedBranches.length > 0) {
+        // Fallback: usar la primera sucursal si hay error o no hay ubicación
+        const firstBranch = { ...mappedBranches[0], distance: null };
+        setNearestStation(firstBranch);
+      }
     });
-  }, []);
+  }, [position, locationError]); // Agregar position y locationError como dependencias
 
   useEffect(() => {
     if (nearestStation) {

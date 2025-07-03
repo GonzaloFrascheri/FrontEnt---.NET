@@ -2,7 +2,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { getBranches, getCatalogWithStock } from '../../services/api';
 import { Spinner, Row } from 'react-bootstrap';
-import { findNearestBranch, getUserLocationByIP } from '../../helpers/utils';
+import { findNearestBranch } from '../../helpers/utils';
+import { useUserLocation } from '../../hooks/getUserLocation';
 import Product from '../../components/Product';
 import { AuthContext } from '../../context/AuthContext';
 import { TenantContext } from '../../context/TenantContext';
@@ -13,7 +14,6 @@ export default function CatalogPage() {
   const [loading, setLoading] = useState(true);
   const [branches, setBranches] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState(null);
-  const [userLocation, setUserLocation] = useState(null);
   const [userData, setUserData] = useState(null);
 
   const { getUserData } = useContext(AuthContext);
@@ -31,42 +31,67 @@ export default function CatalogPage() {
     }
   }
 
-  useEffect(() => {
-    getBranches().then(data => {
-      const branches = Array.isArray(data.data) ? data.data : [];
-      const mapped = branches.map(b => ({
-        id: b.id,
-        name: b.tenant?.name ?? "Estación",
-        address: b.address,
-        lat: parseFloat(b.latitud),
-        lng: parseFloat(b.longitud),
-      })).filter(st => !isNaN(st.lat) && !isNaN(st.lng));
-      setBranches(mapped);
+  // Usar el hook de geolocalización del navegador
+  const { position, error: locationError } = useUserLocation();
 
-      getUserLocationByIP().then(location => {
-        if (location) {
-          setUserLocation(location);
+  useEffect(() => {
+    let isMounted = true;
+    
+    const loadData = async () => {
+      try {
+        // Obtener sucursales
+        const data = await getBranches();
+        if (!isMounted) return;
+        
+        const branches = Array.isArray(data.data) ? data.data : [];
+        const mapped = branches.map(b => ({
+          id: b.id,
+          name: b.tenant?.name ?? "Estación",
+          address: b.address,
+          lat: parseFloat(b.latitud),
+          lng: parseFloat(b.longitud),
+        })).filter(st => !isNaN(st.lat) && !isNaN(st.lng));
+        
+        setBranches(mapped);
+        
+        // Si no hay sucursales, no hay nada más que hacer
+        if (mapped.length === 0) {
+          setLoading(false);
+          return;
         }
-      });
-    });
-  }, []);
-
-  useEffect(() => {
-    if (branches.length > 0) {
-      if (userLocation) {
-        const nearest = findNearestBranch(userLocation.lat, userLocation.lng, branches);
-        setSelectedBranch(nearest);
-      } else {
-        const firstBranch = { ...branches[0], distance: null };
-        setSelectedBranch(firstBranch);
+        
+        // Usar la posición del hook de geolocalización
+        if (position && !locationError) {
+          const [lat, lng] = position;
+          const nearest = findNearestBranch(lat, lng, mapped);
+          setSelectedBranch(nearest);
+        } else {
+          // Fallback: usar la primera sucursal si hay error o no hay ubicación
+          const firstBranch = { ...mapped[0], distance: null };
+          setSelectedBranch(firstBranch);
+        }
+      } catch (error) {
+        console.error("Error al cargar las sucursales:", error);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-    }
-  }, [userLocation]);
+    };
+    
+    loadData();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [position, locationError]); // Agregar position y locationError como dependencias
 
   useEffect(() => {
     if (selectedBranch) {
       getCatalogWithStock(selectedBranch.id).then(data => {
-        setCatalog(data)
+        setCatalog(data);
+        setLoading(false);
+      }).catch(error => {
+        console.error("Error al obtener el catálogo:", error);
         setLoading(false);
       });
     }

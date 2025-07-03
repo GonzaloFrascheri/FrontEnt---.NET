@@ -2,7 +2,8 @@ import React, { useContext, useState, useEffect }  from 'react'
 import { TenantContext } from '../../context/TenantContext'
 import { getBranches, getServicesCatalog } from '../../services/api'
 import DropdownComponent from '../../components/Dropdown'
-import { findNearestBranch, getUserLocationByIP } from '../../helpers/utils';
+import { findNearestBranch } from '../../helpers/utils';
+import { useUserLocation } from '../../hooks/getUserLocation';
 import { Spinner, Row } from 'react-bootstrap';
 import Service from '../../components/Service';
 
@@ -11,9 +12,11 @@ const ServicePage = () => {
 
   const [branches, setBranches] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState(null);
-  const [userLocation, setUserLocation] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [servicesCatalog, setServicesCatalog] = useState([]);
+  
+  // Usar el hook de geolocalización
+  const { position, error: locationError } = useUserLocation();
 
   useEffect(() => {
     getBranches().then(data => {
@@ -26,25 +29,17 @@ const ServicePage = () => {
       })).filter(st => !isNaN(st.lat) && !isNaN(st.lng));
       setBranches(mapped);
 
-      getUserLocationByIP().then(location => {
-        if (location) {
-          setUserLocation(location);
-        }
-      });
-    });
-  }, []);
-
-  useEffect(() => {
-    if (branches.length > 0) {
-      if (userLocation) {
-        const nearest = findNearestBranch(userLocation.lat, userLocation.lng, branches);
+      if (position && !locationError && mapped.length > 0) {
+        const [lat, lng] = position;
+        const nearest = findNearestBranch(lat, lng, mapped);
         setSelectedBranch(nearest);
-      } else {
-        const firstBranch = { ...branches[0], distance: null };
+      } else if (mapped.length > 0) {
+        // Fallback: usar la primera sucursal si hay error o no hay ubicación
+        const firstBranch = { ...mapped[0], distance: null };
         setSelectedBranch(firstBranch);
       }
-    }
-  }, [userLocation]);
+    });
+  }, [position, locationError]); // Agregar position y locationError como dependencias
 
   useEffect(() => {
     if (selectedBranch) {
