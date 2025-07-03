@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { login as apiLogin, getUser, getGeneralParameters } from '../services/api';
+import { login as apiLogin, getUser, getGeneralParameters, setLogoutFunction } from '../services/api';
 
 export const AuthContext = createContext();
 
@@ -21,6 +21,8 @@ export function AuthProvider({ children }) {
   };
 
   useEffect(() => {
+    setLogoutFunction(logout);
+    
     const initializeAuth = async () => {
       try {
         const token = localStorage.getItem('auth_token');

@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import { toast } from 'react-toastify';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -9,7 +9,12 @@ const api = axios.create({
   },
 });
 
-// 🛠️ Interceptor para debug: imprime URL, método y headers
+let logoutFunction = null;
+
+export const setLogoutFunction = (fn) => {
+  logoutFunction = fn;
+};
+
 api.interceptors.request.use(config => {
   return config;
 });
@@ -372,7 +377,6 @@ export async function getBranchPromotions(branchId) {
 /*------------------------------------------------------------------------*/
 
 api.interceptors.request.use(config => {
-  // Chequea si la URL es pública y NO debería llevar token
   if (
     config.url &&
     (
@@ -381,10 +385,8 @@ api.interceptors.request.use(config => {
       config.url.includes('/TenantUI/public')
     )
   ) {
-    // Borra el header Authorization si existe (por si arrastra viejo)
     delete config.headers.Authorization;
   } else {
-    // En endpoints privados, agrega el token si existe
     const token = localStorage.getItem('auth_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -393,5 +395,30 @@ api.interceptors.request.use(config => {
 
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      if (logoutFunction) {
+        toast.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+        
+        logoutFunction();
+        window.location.href = '/login';
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
 
 export default api;
