@@ -178,18 +178,6 @@ const ModalComprar = ({
           <div className="d-inline-block p-3 bg-white shadow-sm mb-3">
             <QRCodeCanvas value={redemptionUrl} size={220} />
           </div>
-
-          <div className="mt-2">
-            <a
-              href={redemptionUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ wordBreak: 'break-all' }}
-            >
-              {redemptionUrl}
-            </a>
-          </div>
-
           <div>
             <Button
               style={primaryButtonStyle}
