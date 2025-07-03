@@ -402,7 +402,7 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response && error.response.status === 401) {
-      if (logoutFunction) {
+      if (logoutFunction && !window.location.pathname.includes('/login')) {
         toast.error('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', {
           position: "top-center",
           autoClose: 5000,

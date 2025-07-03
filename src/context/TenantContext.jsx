@@ -22,8 +22,12 @@ export function TenantProvider({ children }) {
 
     const getGeneralParameters = async () => {
         try {
-            const generalParameters = await apiGetGeneralParameters();
-            setGeneralParameters(generalParameters);
+            // Solo intentar cargar los parámetros generales si hay un token (usuario logueado)
+            const token = localStorage.getItem('auth_token');
+            if (token) {
+                const generalParameters = await apiGetGeneralParameters();
+                setGeneralParameters(generalParameters);
+            }
         } catch (error) {
             console.error('Error fetching general parameters:', error);
         }
@@ -44,7 +48,11 @@ export function TenantProvider({ children }) {
 
     useEffect(() => {
         getTenantUIConfig();
-        getGeneralParameters();
+        // Solo cargar los parámetros generales si hay un token (usuario logueado)
+        const token = localStorage.getItem('auth_token');
+        if (token) {
+            getGeneralParameters();
+        }
     }, []);
 
     return (
