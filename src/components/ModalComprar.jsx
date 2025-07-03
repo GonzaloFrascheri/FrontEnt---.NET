@@ -140,7 +140,11 @@ const ModalComprar = ({
     setCanjeLoading(true);
     setCanjeError('');
     try {
-      const { token } = await generateRedemptionToken({ branchId: selectedBranchId, productId: item.id });
+      const { token } = await generateRedemptionToken({ 
+        branchId: selectedBranchId, 
+        productId: item.id,
+        quantity: quantity
+      });
       setQrToken(token);
       await refreshUserData();
       await refreshCatalog();

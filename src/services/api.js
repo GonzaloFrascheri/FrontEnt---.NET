@@ -237,8 +237,19 @@ export async function redeemProduct({ productId }) {
   return response.data;
 }
 
-export async function generateRedemptionToken({ branchId, productId }) {
-  const response = await api.post('/Redemption/generate-token', { branchId, productId });
+export async function generateRedemptionToken({ branchId, productId, quantity = 1 }) {
+  // Crear el nuevo formato de payload
+  const payload = {
+    BranchId: branchId,
+    Products: [
+      {
+        ProductId: productId,
+        Quantity: quantity
+      }
+    ]
+  };
+  
+  const response = await api.post('/Redemption/generate-token', payload);
   if (response.data && !response.data.error && response.data.data?.token) {
     return response.data.data;
   }
