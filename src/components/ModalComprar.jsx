@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react'
 import { Link } from 'react-router-dom'
 import { Modal, Button, Form, InputGroup } from 'react-bootstrap'
+import { toast } from 'react-toastify';
 
 import { createTransaction } from '../services/api';
 import { generateRedemptionToken } from '../services/api';
@@ -103,10 +104,39 @@ const ModalComprar = ({
       alert('La compra de servicios aún no está implementada');
       return;
     }
-    await createTransaction(selectedBranchId, item.id, quantity);
-    setShowConfirmation(false);
-    refreshUserData();
-    refreshCatalog();
+    
+    try {
+      await createTransaction(selectedBranchId, item.id, quantity);
+      setShowConfirmation(false);
+      refreshUserData();
+      refreshCatalog();
+      
+      // Mostrar notificación de éxito
+      toast.success(`¡Compra exitosa! Has adquirido ${quantity} ${quantity > 1 ? 'unidades' : 'unidad'} de ${item.name}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+    } catch (error) {
+      console.error("Error al realizar la compra:", error);
+      
+      // Mostrar notificación de error
+      toast.error(`No se pudo completar la compra: ${error.message || 'Error desconocido'}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+    }
   }
 
   const handleConfirmPurchase = () => {
@@ -148,9 +178,23 @@ const ModalComprar = ({
       setQrToken(token);
       await refreshUserData();
       await refreshCatalog();
+      
+      // No mostramos toast aquí porque ya se muestra el modal con el QR
     } catch (err) {
       console.error(err);
       setCanjeError('No se pudo generar el QR: ' + (err.message || ''));
+      
+      // Mostrar notificación de error
+      toast.error(`No se pudo generar el QR: ${err.message || 'Error desconocido'}`, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
     } finally {
       setCanjeLoading(false);
     }
