@@ -7,7 +7,8 @@ import {
   Card,
   Carousel,
   Button,
-  Badge
+  Badge,
+  Spinner
 } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { TenantContext } from '../../context/TenantContext';
@@ -23,6 +24,8 @@ export default function HomePage() {
 
   const [promotions, setPromotions] = useState([]);
   const [nearestStation, setNearestStation] = useState(null);
+  const [previousNearestStation, setPreviousNearestStation] = useState(null);
+  const [loadingPromotions, setLoadingPromotions] = useState(false);
   
   // Usar el hook de geolocalización
   const { position, error: locationError } = useUserLocation();
@@ -44,17 +47,26 @@ export default function HomePage() {
       if (position && !locationError && mappedBranches.length > 0) {
         const [lat, lng] = position;
         const nearest = findNearestBranch(lat, lng, mappedBranches);
-        setNearestStation(nearest);
-      } else if (mappedBranches.length > 0) {
+        
+        // Verificar si la estación realmente cambió para evitar actualizaciones innecesarias
+        if (!nearestStation || nearest.id !== nearestStation.id) {
+          setPreviousNearestStation(nearestStation);
+          setNearestStation(nearest);
+        }
+      } else if (mappedBranches.length > 0 && !nearestStation) {
         // Fallback: usar la primera sucursal si hay error o no hay ubicación
+        // Solo establecer si no hay una estación ya seleccionada
         const firstBranch = { ...mappedBranches[0], distance: null };
         setNearestStation(firstBranch);
       }
     });
-  }, [position, locationError]); // Agregar position y locationError como dependencias
+  }, [position, locationError, nearestStation]); // Agregar nearestStation como dependencia
 
   useEffect(() => {
     if (nearestStation) {
+      // Activar estado de carga
+      setLoadingPromotions(true);
+      
       getBranchPromotions(nearestStation.id).then(data => {
         const allProducts = data.flatMap(promo =>
           promo.products ? promo.products.map(product => ({
@@ -87,7 +99,17 @@ export default function HomePage() {
           displayProduct: product
         }));
 
-        setPromotions(processedPromotions);
+        // Solo actualizar las promociones si hay resultados
+        // o si no hay promociones previas
+        if (processedPromotions.length > 0 || promotions.length === 0) {
+          setPromotions(processedPromotions);
+        }
+        
+        // Desactivar estado de carga
+        setLoadingPromotions(false);
+      }).catch(error => {
+        console.error("Error al cargar promociones:", error);
+        setLoadingPromotions(false);
       });
     }
   }, [nearestStation]);
@@ -149,8 +171,19 @@ export default function HomePage() {
         <Container>
           <Row className="mb-4">
             <Col xs="auto">
-              <h2 style={{ color: tenantUIConfig?.primaryColor }}>Promociones Destacadas 🎉</h2>
-              <span className="text-muted">Estas promociones corresponden a la estación de servicio más cercana a tu ubicación</span>
+              <div className="d-flex align-items-center">
+                <h2 style={{ color: tenantUIConfig?.primaryColor }}>Promociones Destacadas 🎉</h2>
+                {loadingPromotions && (
+                  <div className="ms-3 d-flex align-items-center">
+                    <Spinner animation="border" size="sm" variant="primary" className="me-2" />
+                    <span className="text-primary small">Actualizando promociones...</span>
+                  </div>
+                )}
+              </div>
+              <span className="text-muted">
+                Estas promociones corresponden a la estación de servicio más cercana a tu ubicación
+                {nearestStation && nearestStation.name && ` (${nearestStation.name})`}
+              </span>
             </Col>
           </Row>
         </Container>

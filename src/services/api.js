@@ -254,11 +254,21 @@ export async function generateRedemptionToken({ branchId, productId, quantity = 
     ]
   };
   
-  const response = await api.post('/Redemption/generate-token', payload);
-  if (response.data && !response.data.error && response.data.data?.token) {
-    return response.data.data;
+  try {
+    const response = await api.post('/Redemption/generate-token', payload);
+    if (response.data && !response.data.error && response.data.data?.token) {
+      return response.data.data;
+    }
+    // Si la API devuelve error=true, lanzamos el mensaje específico de la API
+    throw new Error(response.data?.message || "No se pudo generar el token");
+  } catch (error) {
+    // Capturamos errores de red o de Axios y extraemos el mensaje de la API si existe
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
+    // Si no hay un mensaje específico de la API, lanzamos el error original
+    throw error;
   }
-  throw new Error(response.data?.message || "No se pudo generar el token");
 }
 
 /*--------------------------------COMBUSTIBLE--------------------------------*/
