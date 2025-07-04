@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
-import { getBranches, getFuelPrices } from "../../services/api";
-import { Spinner, Row, Dropdown, Container, Card, Col, Alert } from "react-bootstrap";
+import { getFuelPrices } from "../../services/api";
+import { Spinner, Row, Container, Card, Col, Alert } from "react-bootstrap";
 import { TenantContext } from "../../context/TenantContext";
 import { AuthContext } from "../../context/AuthContext";
+import { useLocation } from "../../hooks/useLocation";
+import DropdownComponent from "../../components/Dropdown";
 
 const FUEL_NAMES = {
   0: { label: "Súper", icon: "⛽", css: "fuel-super" },
@@ -11,24 +13,17 @@ const FUEL_NAMES = {
 };
 
 export default function FuelsPage() {
-  const [branches, setBranches] = useState([]);
-  const [selectedBranch, setSelectedBranch] = useState(null);
   const [fuels, setFuels] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [fuelsLoading, setFuelsLoading] = useState(false);
   const [error, setError] = useState("");
   const { tenantUIConfig } = useContext(TenantContext);
   const { tenantParameters } = useContext(AuthContext);
+  const { branches, selectedBranch, setSelectedBranch, loading: locationLoading } = useLocation();
 
-  useEffect(() => {
-    setLoading(true);
-    getBranches().then(data => {
-      const arr = Array.isArray(data.data) ? data.data : [];
-      setBranches(arr);
-      if (arr.length > 0) setSelectedBranch(arr[0]); // Selecciona la primera branch por default
-      setLoading(false);
-    });
-  }, []);
+  const tenantStyles = {
+    primaryColor: tenantUIConfig?.primaryColor || '#1976d2',
+    secondaryColor: tenantUIConfig?.secondaryColor || '#FFFF00',
+  };
 
   useEffect(() => {
     if (!selectedBranch) return;
@@ -51,28 +46,22 @@ export default function FuelsPage() {
     }).format(price);
   };
 
-  if (loading) return <Spinner animation="border" className="d-block mx-auto my-5" />;
+  if (locationLoading) return <Spinner animation="border" className="d-block mx-auto my-5" />;
 
   return (
     <Container className="py-5">
       <div className="mb-4 w-100 d-flex justify-content-between align-items-center">
         <h3 style={{ color: tenantUIConfig?.primaryColor }}>Precios de Combustibles</h3>
-        <Dropdown>
-          <Dropdown.Toggle>
-            {selectedBranch?.address || selectedBranch?.name || "Seleccioná estación"}
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            {branches.map(branch => (
-              <Dropdown.Item
-                key={branch.id}
-                value={branch.id}
-                onClick={() => setSelectedBranch(branch)}
-              >
-                {branch.address || branch.name || `Estación #${branch.id}`}
-              </Dropdown.Item>
-            ))}
-          </Dropdown.Menu>
-        </Dropdown>
+        
+        <DropdownComponent
+          items={branches.map(branch => ({
+            id: branch.id,
+            label: branch.address || branch.name || `Estación #${branch.id}`
+          }))}
+          selectedItemId={selectedBranch?.id}
+          setSelectedItemId={(id) => setSelectedBranch(branches.find(branch => branch.id === id))}
+          tenantStyles={tenantStyles}
+        />
       </div>
 
       {fuelsLoading ? (

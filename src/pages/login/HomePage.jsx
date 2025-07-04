@@ -135,6 +135,34 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Sección de selección de ubicación - siempre visible */}
+      <Container className="py-4">
+        <Row className="mb-4">
+          <Col>
+            <div className="d-flex justify-content-between align-items-center">
+              <div>
+                <h3 style={{ color: tenantUIConfig?.primaryColor }}>Seleccionar Estación</h3>
+                <span className="text-muted">
+                  Estación actual: {selectedBranch?.address || selectedBranch?.name || 'Cargando...'}
+                </span>
+              </div>
+              
+              {!locationLoading && branches.length > 0 && (
+                <DropdownComponent
+                  items={branches.map(branch => ({
+                    id: branch.id,
+                    label: branch.address || branch.name || `Estación #${branch.id}`
+                  }))}
+                  selectedItemId={selectedBranch?.id}
+                  setSelectedItemId={(id) => setSelectedBranch(branches.find(branch => branch.id === id))}
+                  tenantStyles={tenantStyles}
+                />
+              )}
+            </div>
+          </Col>
+        </Row>
+      </Container>
+
       {promotions.length > 0 && (
         <div className="py-5">
         <Container>
@@ -149,24 +177,10 @@ export default function HomePage() {
                   </div>
                 )}
               </div>
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <span className="text-muted">
-                  Estas promociones corresponden a la estación de servicio seleccionada
-                  {selectedBranch && selectedBranch.name && ` (${selectedBranch.name})`}
-                </span>
-                
-                {!locationLoading && (
-                  <DropdownComponent
-                    items={branches.map(branch => ({
-                      id: branch.id,
-                      label: branch.address
-                    }))}
-                    selectedItemId={selectedBranch?.id}
-                    setSelectedItemId={(id) => setSelectedBranch(branches.find(branch => branch.id === id))}
-                    tenantStyles={tenantStyles}
-                  />
-                )}
-              </div>
+              <span className="text-muted">
+                Estas promociones corresponden a la estación de servicio seleccionada
+                {selectedBranch && selectedBranch.name && ` (${selectedBranch.name})`}
+              </span>
             </Col>
           </Row>
         </Container>
