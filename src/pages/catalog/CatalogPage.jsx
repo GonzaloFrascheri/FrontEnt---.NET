@@ -1,23 +1,21 @@
 // src/pages/catalog/CatalogPage.jsx
 import React, { useState, useEffect, useContext } from 'react';
-import { getBranches, getCatalogWithStock } from '../../services/api';
+import { getCatalogWithStock } from '../../services/api';
 import { Spinner, Row } from 'react-bootstrap';
-import { findNearestBranch } from '../../helpers/utils';
-import { useUserLocation } from '../../hooks/getUserLocation';
 import Product from '../../components/Product';
 import { AuthContext } from '../../context/AuthContext';
 import { TenantContext } from '../../context/TenantContext';
 import DropdownComponent from '../../components/Dropdown';
+import { useLocation } from '../../hooks/useLocation';
 
 export default function CatalogPage() {
   const [catalog, setCatalog] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [branches, setBranches] = useState([]);
-  const [selectedBranch, setSelectedBranch] = useState(null);
+  const [catalogLoading, setCatalogLoading] = useState(true);
   const [userData, setUserData] = useState(null);
 
   const { getUserData } = useContext(AuthContext);
   const { tenantUIConfig } = useContext(TenantContext);
+  const { branches, selectedBranch, setSelectedBranch, loading: locationLoading } = useLocation();
 
   const tenantStyles = {
     primaryColor: tenantUIConfig?.primaryColor || '#1976d2',
@@ -31,68 +29,15 @@ export default function CatalogPage() {
     }
   }
 
-  // Usar el hook de geolocalización del navegador
-  const { position, error: locationError } = useUserLocation();
-
-  useEffect(() => {
-    let isMounted = true;
-    
-    const loadData = async () => {
-      try {
-        // Obtener sucursales
-        const data = await getBranches();
-        if (!isMounted) return;
-        
-        const branches = Array.isArray(data.data) ? data.data : [];
-        const mapped = branches.map(b => ({
-          id: b.id,
-          name: b.tenant?.name ?? "Estación",
-          address: b.address,
-          lat: parseFloat(b.latitud),
-          lng: parseFloat(b.longitud),
-        })).filter(st => !isNaN(st.lat) && !isNaN(st.lng));
-        
-        setBranches(mapped);
-        
-        // Si no hay sucursales, no hay nada más que hacer
-        if (mapped.length === 0) {
-          setLoading(false);
-          return;
-        }
-        
-        // Usar la posición del hook de geolocalización
-        if (position && !locationError) {
-          const [lat, lng] = position;
-          const nearest = findNearestBranch(lat, lng, mapped);
-          setSelectedBranch(nearest);
-        } else {
-          // Fallback: usar la primera sucursal si hay error o no hay ubicación
-          const firstBranch = { ...mapped[0], distance: null };
-          setSelectedBranch(firstBranch);
-        }
-      } catch (error) {
-        console.error("Error al cargar las sucursales:", error);
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-    
-    loadData();
-    
-    return () => {
-      isMounted = false;
-    };
-  }, [position, locationError]); // Agregar position y locationError como dependencias
-
   useEffect(() => {
     if (selectedBranch) {
+      setCatalogLoading(true);
       getCatalogWithStock(selectedBranch.id).then(data => {
         setCatalog(data);
-        setLoading(false);
+        setCatalogLoading(false);
       }).catch(error => {
         console.error("Error al obtener el catálogo:", error);
-        setLoading(false);
+        setCatalogLoading(false);
       });
     }
   }, [selectedBranch]);
@@ -103,7 +48,7 @@ export default function CatalogPage() {
     })
   }, [getUserData]);
 
-  if (loading) return <Spinner animation="border" className="d-block mx-auto my-5" />;
+  if (locationLoading || catalogLoading) return <Spinner animation="border" className="d-block mx-auto my-5" />;
 
   return (
     <div className="p-4">

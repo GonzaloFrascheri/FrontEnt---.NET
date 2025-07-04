@@ -14,60 +14,29 @@ import { Link } from 'react-router-dom';
 import { TenantContext } from '../../context/TenantContext';
 import { AuthContext } from '../../context/AuthContext';
 import bg from '../../../src/assets/4-9.jpg';
-import { getBranches, getBranchPromotions } from '../../services/api';
-import { findNearestBranch } from '../../helpers/utils';
-import { useUserLocation } from '../../hooks/getUserLocation';
+import { getBranchPromotions } from '../../services/api';
+import { useLocation } from '../../hooks/useLocation';
+import DropdownComponent from '../../components/Dropdown';
 
 export default function HomePage() {
   const { tenantUIConfig } = useContext(TenantContext);
   const { tenantParameters } = useContext(AuthContext);
+  const { branches, selectedBranch, setSelectedBranch, loading: locationLoading } = useLocation();
 
   const [promotions, setPromotions] = useState([]);
-  const [nearestStation, setNearestStation] = useState(null);
-  const [previousNearestStation, setPreviousNearestStation] = useState(null);
   const [loadingPromotions, setLoadingPromotions] = useState(false);
   
-  // Usar el hook de geolocalización
-  const { position, error: locationError } = useUserLocation();
+  const tenantStyles = {
+    primaryColor: tenantUIConfig?.primaryColor || '#1976d2',
+    secondaryColor: tenantUIConfig?.secondaryColor || '#FFFF00',
+  };
 
   useEffect(() => {
-    getBranches().then(data => {
-      const branches = Array.isArray(data.data) ? data.data : [];
-
-      const mappedBranches = branches
-        .map(b => ({
-          id: b.id,
-          name: b.tenant?.name ?? "Estación",
-          address: b.address,
-          lat: parseFloat(b.latitud),
-          lng: parseFloat(b.longitud),
-        }))
-        .filter(st => !isNaN(st.lat) && !isNaN(st.lng));
-
-      if (position && !locationError && mappedBranches.length > 0) {
-        const [lat, lng] = position;
-        const nearest = findNearestBranch(lat, lng, mappedBranches);
-        
-        // Verificar si la estación realmente cambió para evitar actualizaciones innecesarias
-        if (!nearestStation || nearest.id !== nearestStation.id) {
-          setPreviousNearestStation(nearestStation);
-          setNearestStation(nearest);
-        }
-      } else if (mappedBranches.length > 0 && !nearestStation) {
-        // Fallback: usar la primera sucursal si hay error o no hay ubicación
-        // Solo establecer si no hay una estación ya seleccionada
-        const firstBranch = { ...mappedBranches[0], distance: null };
-        setNearestStation(firstBranch);
-      }
-    });
-  }, [position, locationError, nearestStation]); // Agregar nearestStation como dependencia
-
-  useEffect(() => {
-    if (nearestStation) {
+    if (selectedBranch) {
       // Activar estado de carga
       setLoadingPromotions(true);
       
-      getBranchPromotions(nearestStation.id).then(data => {
+      getBranchPromotions(selectedBranch.id).then(data => {
         const allProducts = data.flatMap(promo =>
           promo.products ? promo.products.map(product => ({
             ...product,
@@ -112,7 +81,7 @@ export default function HomePage() {
         setLoadingPromotions(false);
       });
     }
-  }, [nearestStation]);
+  }, [selectedBranch]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -170,7 +139,7 @@ export default function HomePage() {
         <div className="py-5">
         <Container>
           <Row className="mb-4">
-            <Col xs="auto">
+            <Col>
               <div className="d-flex align-items-center">
                 <h2 style={{ color: tenantUIConfig?.primaryColor }}>Promociones Destacadas 🎉</h2>
                 {loadingPromotions && (
@@ -180,10 +149,24 @@ export default function HomePage() {
                   </div>
                 )}
               </div>
-              <span className="text-muted">
-                Estas promociones corresponden a la estación de servicio más cercana a tu ubicación
-                {nearestStation && nearestStation.name && ` (${nearestStation.name})`}
-              </span>
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <span className="text-muted">
+                  Estas promociones corresponden a la estación de servicio seleccionada
+                  {selectedBranch && selectedBranch.name && ` (${selectedBranch.name})`}
+                </span>
+                
+                {!locationLoading && (
+                  <DropdownComponent
+                    items={branches.map(branch => ({
+                      id: branch.id,
+                      label: branch.address
+                    }))}
+                    selectedItemId={selectedBranch?.id}
+                    setSelectedItemId={(id) => setSelectedBranch(branches.find(branch => branch.id === id))}
+                    tenantStyles={tenantStyles}
+                  />
+                )}
+              </div>
             </Col>
           </Row>
         </Container>

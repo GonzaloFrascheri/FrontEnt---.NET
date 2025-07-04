@@ -1,45 +1,17 @@
 import React, { useContext, useState, useEffect }  from 'react'
 import { TenantContext } from '../../context/TenantContext'
-import { getBranches, getServicesCatalog } from '../../services/api'
+import { getServicesCatalog } from '../../services/api'
 import DropdownComponent from '../../components/Dropdown'
-import { findNearestBranch } from '../../helpers/utils';
-import { useUserLocation } from '../../hooks/getUserLocation';
 import { Spinner, Row } from 'react-bootstrap';
 import Service from '../../components/Service';
+import { useLocation } from '../../hooks/useLocation';
 
 const ServicePage = () => {
   const { tenantUIConfig } = useContext(TenantContext);
+  const { branches, selectedBranch, setSelectedBranch, loading: locationLoading } = useLocation();
 
-  const [branches, setBranches] = useState([]);
-  const [selectedBranch, setSelectedBranch] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [servicesCatalog, setServicesCatalog] = useState([]);
-  
-  // Usar el hook de geolocalización
-  const { position, error: locationError } = useUserLocation();
-
-  useEffect(() => {
-    getBranches().then(data => {
-      const branches = Array.isArray(data.data) ? data.data : [];
-      const mapped = branches.map(b => ({
-        id: b.id,
-        address: b.address,
-        lat: parseFloat(b.latitud),
-        lng: parseFloat(b.longitud),
-      })).filter(st => !isNaN(st.lat) && !isNaN(st.lng));
-      setBranches(mapped);
-
-      if (position && !locationError && mapped.length > 0) {
-        const [lat, lng] = position;
-        const nearest = findNearestBranch(lat, lng, mapped);
-        setSelectedBranch(nearest);
-      } else if (mapped.length > 0) {
-        // Fallback: usar la primera sucursal si hay error o no hay ubicación
-        const firstBranch = { ...mapped[0], distance: null };
-        setSelectedBranch(firstBranch);
-      }
-    });
-  }, [position, locationError]); // Agregar position y locationError como dependencias
 
   useEffect(() => {
     if (selectedBranch) {
@@ -50,7 +22,7 @@ const ServicePage = () => {
     }
   }, [selectedBranch]);
 
-  if (isLoading) return <Spinner animation="border" className="d-block mx-auto my-5" />;
+  if (locationLoading || isLoading) return <Spinner animation="border" className="d-block mx-auto my-5" />;
 
   return (
     <div className="p-4">

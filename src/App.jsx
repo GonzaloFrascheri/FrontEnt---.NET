@@ -5,14 +5,17 @@ import 'react-toastify/dist/ReactToastify.css';
 import AppRoutes from './routes';
 import { AuthProvider } from './context/AuthContext';
 import { TenantProvider } from './context/TenantContext';
+import { LocationProvider } from './context/LocationContext';
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <TenantProvider>
-          <AppRoutes />
-          <ToastContainer />
+          <LocationProvider>
+            <AppRoutes />
+            <ToastContainer />
+          </LocationProvider>
         </TenantProvider>
       </AuthProvider>
     </BrowserRouter>
