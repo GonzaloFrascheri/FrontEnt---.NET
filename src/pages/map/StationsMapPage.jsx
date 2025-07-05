@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import L from 'leaflet';
 import estacion from '../../assets/estacion.png';
-import { getBranches } from '../../services/api';
 import { TenantContext } from '../../context/TenantContext';
+import { useLocation } from '../../hooks/useLocation';
 
 function FitBounds({ stations }) {
   const map = useMap();
@@ -17,22 +17,8 @@ function FitBounds({ stations }) {
 }
 
 export default function StationsMapPage() {
-  const [stations, setStations] = useState([]);
   const { tenantUIConfig } = useContext(TenantContext);
-
-    useEffect(() => {
-      getBranches().then(data => {
-        const branches = Array.isArray(data.data) ? data.data : [];
-        const mapped = branches.map(b => ({
-          id: b.id,
-          name: b.tenant?.name ?? "Estación",
-          address: b.address,
-          lat: parseFloat(b.latitud),
-          lng: parseFloat(b.longitud),
-        })).filter(st => !isNaN(st.lat) && !isNaN(st.lng));
-        setStations(mapped);
-      });
-    }, []);
+  const { branches: stations, loading } = useLocation();
 
 
   const stationIcon = L.icon({
