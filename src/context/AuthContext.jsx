@@ -25,13 +25,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Efecto para monitorear cambios en loginSuccess
-  useEffect(() => {
-    if (loginSuccess) {
-      console.log("AuthContext: loginSuccess changed to true");
-    }
-  }, [loginSuccess]);
-
   useEffect(() => {
     setLogoutFunction(logout);
     
@@ -80,7 +73,6 @@ export function AuthProvider({ children }) {
 
   const login = async ({ email, password }) => {
     try {
-      console.log("Login process started");
       localStorage.removeItem('auth_token');
       localStorage.removeItem('user_data');
       setUser(null);
@@ -88,20 +80,16 @@ export function AuthProvider({ children }) {
 
       const { token } = await apiLogin({ email, password });
       if (token) {
-        console.log("Login successful, setting token");
         localStorage.setItem('auth_token', token);
         setUser({ token });
 
-        console.log("Fetching user data");
         const userData = await getUser();
         setUserData(userData.data);
         localStorage.setItem('user_data', JSON.stringify(userData.data));
 
-        console.log("Loading tenant parameters");
         await loadTenantParameters();
         
         // Activar flag de login exitoso para notificar a otros contextos
-        console.log("Setting loginSuccess flag to true");
         setLoginSuccess(true);
       } else {
         throw new Error('Login fallido');
@@ -114,21 +102,17 @@ export function AuthProvider({ children }) {
 
   const loginWithToken = async ({ token }) => {
     try {
-      console.log("Login with token started");
       localStorage.setItem('auth_token', token);
       setUser({ token });
 
-      console.log("Fetching user profile");
       const profile = await getProfile();
       setUserData(profile);
       localStorage.setItem('user_data', JSON.stringify(profile));
 
       // Recargar parámetros del tenant después del login
-      console.log("Loading tenant parameters");
       await loadTenantParameters();
       
       // Activar flag de login exitoso para notificar a otros contextos
-      console.log("Setting loginSuccess flag to true");
       setLoginSuccess(true);
     } catch (error) {
       console.error('Error obteniendo perfil:', error);
