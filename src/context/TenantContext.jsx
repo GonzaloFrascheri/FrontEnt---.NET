@@ -7,14 +7,31 @@ export function TenantProvider({ children }) {
     const [tenantUIConfig, setTenantUIConfig] = useState(null);
     const [generalParameters, setGeneralParameters] = useState(null);
     const [loading, setLoading] = useState(true);
+    // Nuevo estado para controlar si el tenant existe
+    const [tenantExists, setTenantExists] = useState(true);
+    // Mensaje de error opcional
+    const [errorMessage, setErrorMessage] = useState('');
 
     const getTenantUIConfig = async () => {
         try {
             setLoading(true);
             const tenantUIConfig = await apiGetTenantUIConfig();
             setTenantUIConfig(tenantUIConfig);
+            // Si llegamos aquí, el tenant existe
+            setTenantExists(true);
         } catch (error) {
             console.error('Error fetching tenant UI config:', error);
+            
+            // Verificar si es un error 400 (tenant no existe)
+            if (error.response && error.response.status === 400) {
+                setTenantExists(false);
+                // Obtener el mensaje de error del backend si está disponible
+                if (error.response.data && error.response.data.message) {
+                    setErrorMessage(error.response.data.message);
+                } else {
+                    setErrorMessage('El tenant al que quieres ingresar no existe');
+                }
+            }
         } finally {
             setLoading(false);
         }
@@ -65,7 +82,9 @@ export function TenantProvider({ children }) {
             ensureGeneralParameters,
             tenantUIConfig,
             generalParameters,
-            loading
+            loading,
+            tenantExists,
+            errorMessage
         }}>
             {children}
         </TenantContext.Provider>
