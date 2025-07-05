@@ -92,6 +92,9 @@ export function AuthProvider({ children }) {
         // Activar flag de login exitoso para notificar a otros contextos
         setLoginSuccess(true);
         setLoading(false); // Asegurar que authLoading sea false inmediatamente
+        
+        // Recargar la página para asegurar que las branches se carguen correctamente
+        window.location.reload();
       } else {
         throw new Error('Login fallido');
       }
@@ -116,6 +119,9 @@ export function AuthProvider({ children }) {
       // Activar flag de login exitoso para notificar a otros contextos
       setLoginSuccess(true);
       setLoading(false); // Asegurar que authLoading sea false inmediatamente
+      
+      // Recargar la página para asegurar que las branches se carguen correctamente
+      window.location.reload();
     } catch (error) {
       console.error('Error obteniendo perfil:', error);
       throw error;
