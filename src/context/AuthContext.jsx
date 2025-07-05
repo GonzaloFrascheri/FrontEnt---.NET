@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [tenantParameters, setTenantParameters] = useState(null);
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
   const loadTenantParameters = async () => {
     try {
@@ -87,6 +88,9 @@ export function AuthProvider({ children }) {
         localStorage.setItem('user_data', JSON.stringify(userData.data));
 
         await loadTenantParameters();
+        
+        // Activar flag de login exitoso para notificar a otros contextos
+        setLoginSuccess(true);
       } else {
         throw new Error('Login fallido');
       }
@@ -107,6 +111,9 @@ export function AuthProvider({ children }) {
 
       // Recargar parámetros del tenant después del login
       await loadTenantParameters();
+      
+      // Activar flag de login exitoso para notificar a otros contextos
+      setLoginSuccess(true);
     } catch (error) {
       console.error('Error obteniendo perfil:', error);
       throw error;
@@ -165,7 +172,9 @@ export function AuthProvider({ children }) {
       logout,
       loading,
       tenantParameters,
-      refreshTenantParameters
+      refreshTenantParameters,
+      loginSuccess,
+      setLoginSuccess
     }}>
       {children}
     </AuthContext.Provider>
