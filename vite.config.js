@@ -14,7 +14,7 @@ export default defineConfig({
       https: true,
       strictPort: true,
       hmr: {
-        host: 'petrobras.app.servipuntos.local', // Para hot module replacement
+        host: 'petrobras.app.servipuntos.me', // Para hot module replacement
       },
     },
     proxy: {
