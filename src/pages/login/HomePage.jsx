@@ -14,7 +14,7 @@ import { Link } from 'react-router-dom';
 import { TenantContext } from '../../context/TenantContext';
 import { AuthContext } from '../../context/AuthContext';
 import bg from '../../../src/assets/4-9.jpg';
-import { getBranchPromotions } from '../../services/api';
+import { getBranchPromotions, getTenantPromotions } from '../../services/api';
 import { useLocation } from '../../hooks/useLocation';
 import DropdownComponent from '../../components/Dropdown';
 
@@ -23,62 +23,99 @@ export default function HomePage() {
   const { tenantParameters } = useContext(AuthContext);
   const { branches, selectedBranch, setSelectedBranch, loading: locationLoading } = useLocation();
 
-  const [promotions, setPromotions] = useState([]);
+  const [branchPromotions, setPromotions] = useState([]);
+  const [tenantPromotions, setTenantPromotions] = useState([]);
+  const [allPromotions, setAllPromotions] = useState([]);
   const [loadingPromotions, setLoadingPromotions] = useState(false);
+  const [loadingTenantPromotions, setLoadingTenantPromotions] = useState(false);
   
   const tenantStyles = {
     primaryColor: tenantUIConfig?.primaryColor || '#1976d2',
     secondaryColor: tenantUIConfig?.secondaryColor || '#FFFF00',
   };
 
+  // Función para procesar promociones (común para ambos tipos)
+  const processPromotions = (data, isTenantPromotion = false) => {
+    const allProducts = data.flatMap(promo =>
+      promo.products ? promo.products.map(product => ({
+        ...product,
+        promotionId: promo.promotionId,
+        promotionPrice: promo.price,
+        startDate: promo.startDate,
+        endDate: promo.endDate,
+        description: promo.description,
+        tenantId: promo.tenantId
+      })) : []
+    );
+
+    const productGroups = allProducts.reduce((groups, product) => {
+      const key = product.name.toLowerCase().trim();
+      if (!groups[key] || product.promotionPrice < groups[key].promotionPrice) {
+        groups[key] = product;
+      }
+      return groups;
+    }, {});
+
+    return Object.values(productGroups).map(product => ({
+      promotionId: product.promotionId,
+      description: product.description,
+      startDate: product.startDate,
+      endDate: product.endDate,
+      price: product.promotionPrice,
+      tenantId: product.tenantId,
+      products: [product],
+      displayProduct: product,
+      isTenantPromotion // Indicador del tipo de promoción
+    }));
+  };
+
+  // Efecto para cargar promociones del tenant (una sola vez)
+  useEffect(() => {
+    const loadTenantPromotions = async () => {
+      setLoadingTenantPromotions(true);
+      try {
+        const data = await getTenantPromotions();
+        const processedTenantPromotions = processPromotions(data, true);
+        setTenantPromotions(processedTenantPromotions);
+      } catch (error) {
+        console.error("Error al cargar promociones del tenant:", error);
+      } finally {
+        setLoadingTenantPromotions(false);
+      }
+    };
+
+    // Cargar promociones del tenant
+    loadTenantPromotions();
+  }, []);
+
+  // Efecto para cargar promociones de branch cuando cambia la ubicación
   useEffect(() => {
     if (selectedBranch) {
       // Activar estado de carga
       setLoadingPromotions(true);
       
       getBranchPromotions(selectedBranch.id).then(data => {
-        const allProducts = data.flatMap(promo =>
-          promo.products ? promo.products.map(product => ({
-            ...product,
-            promotionId: promo.promotionId,
-            promotionPrice: promo.price,
-            startDate: promo.startDate,
-            endDate: promo.endDate,
-            description: promo.description,
-            tenantId: promo.tenantId
-          })) : []
-        );
-
-        const productGroups = allProducts.reduce((groups, product) => {
-          const key = product.name.toLowerCase().trim();
-          if (!groups[key] || product.promotionPrice < groups[key].promotionPrice) {
-            groups[key] = product;
-          }
-          return groups;
-        }, {});
-
-        const processedPromotions = Object.values(productGroups).map(product => ({
-          promotionId: product.promotionId,
-          description: product.description,
-          startDate: product.startDate,
-          endDate: product.endDate,
-          price: product.promotionPrice,
-          tenantId: product.tenantId,
-          products: [product],
-          displayProduct: product
-        }));
-
-        // Siempre actualizar las promociones cuando cambia la ubicación
+        // Procesar promociones de branch (isTenantPromotion = false)
+        const processedPromotions = processPromotions(data, false);
+        
+        // Actualizar las promociones cuando cambia la ubicación
         setPromotions(processedPromotions);
         
         // Desactivar estado de carga
         setLoadingPromotions(false);
       }).catch(error => {
-        console.error("Error al cargar promociones:", error);
+        console.error("Error al cargar promociones de branch:", error);
         setLoadingPromotions(false);
       });
     }
   }, [selectedBranch]);
+
+  // Efecto para combinar ambos tipos de promociones
+  useEffect(() => {
+    // Combinar promociones de tenant y branch
+    const combined = [...tenantPromotions, ...branchPromotions];
+    setAllPromotions(combined);
+  }, [tenantPromotions, branchPromotions]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -149,14 +186,14 @@ export default function HomePage() {
       </div>
 
 
-      {promotions.length > 0 && (
+      {allPromotions.length > 0 && (
         <div className="py-5">
         <Container>
           <Row className="mb-4">
             <Col>
               <div className="d-flex align-items-center">
                 <h2 style={{ color: tenantUIConfig?.primaryColor }}>Promociones Destacadas 🎉</h2>
-                {loadingPromotions && (
+                {(loadingPromotions || loadingTenantPromotions) && (
                   <div className="ms-3 d-flex align-items-center">
                     <Spinner animation="border" size="sm" variant="primary" className="me-2" />
                     <span className="text-primary small">Actualizando promociones...</span>
@@ -164,7 +201,7 @@ export default function HomePage() {
                 )}
               </div>
               <span className="text-muted">
-                Estas promociones corresponden a la estación de servicio seleccionada
+                Mostrando promociones generales y de la estación seleccionada
                 {selectedBranch && selectedBranch.name && ` (${selectedBranch.name})`}
               </span>
             </Col>
@@ -178,13 +215,20 @@ export default function HomePage() {
           indicators
           className="promo-carousel"
         >
-          {promotions.map((promo, idx) => (
+          {allPromotions.map((promo, idx) => (
             <Carousel.Item key={`${promo.id}-${idx}`}>
               <div className="d-flex justify-content-center align-items-center" style={{ height: '350px' }}>
                 <Card
-                  className="mx-3 p-4 text-center shadow"
+                  className="mx-3 p-4 text-center shadow position-relative"
                   style={{ maxWidth: 450, minWidth: 350 }}
                 >
+                  {/* Indicador del tipo de promoción */}
+                  <Badge 
+                    bg={promo.isTenantPromotion ? "primary" : "success"} 
+                    className="position-absolute top-0 end-0 m-2"
+                  >
+                    {promo.isTenantPromotion ? "Promoción General" : "Promoción de Estación"}
+                  </Badge>
                   <div className="mb-3">
                     <div className="d-flex justify-content-between text-muted small">
                       <span>Desde: {formatDate(promo.startDate)}</span>

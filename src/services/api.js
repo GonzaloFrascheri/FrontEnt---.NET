@@ -384,6 +384,15 @@ export async function getBranchPromotions(branchId) {
   return response.data.data;
 }
 
+/**
+ * Obtiene las promociones del tenant actual (basado en el token).
+ * @returns {Promise<Array>} promociones del tenant
+ */
+export async function getTenantPromotions() {
+  const response = await api.get(`/Promotion/tenant`);
+  return response.data.data;
+}
+
 /*------------------------------------------------------------------------*/
 
 api.interceptors.request.use(config => {
