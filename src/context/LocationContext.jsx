@@ -16,17 +16,26 @@ export const LocationProvider = ({ children }) => {
   const { position, error: locationError } = useUserLocation();
   
   // Usar el contexto de autenticación para saber si el usuario está logueado
-  const { user } = useContext(AuthContext);
+  const { user, loading: authLoading } = useContext(AuthContext);
 
   // Cargar las sucursales cuando el usuario está logueado o cuando cambia la posición
   useEffect(() => {
+    // Si AuthContext aún está cargando, mantener loading en true
+    if (authLoading) {
+      setLoading(true);
+      return;
+    }
+    
+    // Si no hay usuario (después de que AuthContext terminó de cargar), limpiar datos
+    if (!user) {
+      setBranches([]);
+      setSelectedBranch(null);
+      setLoading(false);
+      return;
+    }
+    
     const loadBranches = async () => {
       try {
-        // Solo cargar sucursales si el usuario está logueado
-        if (!user) {
-          setLoading(false);
-          return;
-        }
         
         const data = await getBranches();
         const branchesList = Array.isArray(data.data) ? data.data : [];
@@ -67,16 +76,9 @@ export const LocationProvider = ({ children }) => {
       }
     };
     
-    // Si no hay usuario, limpiar las sucursales y establecer loading en false
-    if (!user) {
-      setBranches([]);
-      setSelectedBranch(null);
-      setLoading(false);
-      return;
-    }
-    
+    // Solo cargar sucursales si AuthContext terminó de cargar y hay usuario
     loadBranches();
-  }, [user, position, locationError]);
+  }, [user, authLoading, position, locationError]);
 
   // Valor del contexto
   const contextValue = {
