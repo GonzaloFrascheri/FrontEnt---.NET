@@ -24,12 +24,14 @@ export function TenantProvider({ children }) {
         try {
             // Solo intentar cargar los parámetros generales si hay un token (usuario logueado)
             const token = localStorage.getItem('auth_token');
-            if (token) {
-                const generalParameters = await apiGetGeneralParameters();
-                setGeneralParameters(generalParameters);
-            }
+            if (!token) return null;
+            
+            const generalParameters = await apiGetGeneralParameters();
+            setGeneralParameters(generalParameters);
+            return generalParameters;
         } catch (error) {
             console.error('Error fetching general parameters:', error);
+            return null;
         }
     }
 

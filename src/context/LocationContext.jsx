@@ -18,6 +18,13 @@ export const LocationProvider = ({ children }) => {
   useEffect(() => {
     const loadBranches = async () => {
       try {
+        // Solo cargar sucursales si hay un token (usuario logueado)
+        const token = localStorage.getItem('auth_token');
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+        
         const data = await getBranches();
         const branchesList = Array.isArray(data.data) ? data.data : [];
         

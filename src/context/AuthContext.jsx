@@ -11,6 +11,10 @@ export function AuthProvider({ children }) {
 
   const loadTenantParameters = async () => {
     try {
+      // Solo cargar parámetros si hay un token (usuario logueado)
+      const token = localStorage.getItem('auth_token');
+      if (!token) return null;
+      
       const parameters = await getGeneralParameters();
       setTenantParameters(parameters);
       return parameters;
@@ -47,9 +51,10 @@ export function AuthProvider({ children }) {
           } catch (error) {
             console.warn('Error fetching fresh user data:', error);
           }
+          
+          // Solo cargar parámetros si el usuario está logueado
+          await loadTenantParameters();
         }
-
-        await loadTenantParameters();
       } catch (error) {
         console.error('Error initializing auth:', error);
       } finally {
