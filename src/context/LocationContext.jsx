@@ -1,7 +1,8 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
 import { getBranches } from '../services/api';
 import { findNearestBranch } from '../helpers/utils';
 import { useUserLocation } from '../hooks/getUserLocation';
+import { AuthContext } from './AuthContext';
 
 // Crear el contexto
 export const LocationContext = createContext();
@@ -13,14 +14,16 @@ export const LocationProvider = ({ children }) => {
   
   // Usar el hook de geolocalización
   const { position, error: locationError } = useUserLocation();
+  
+  // Usar el contexto de autenticación para saber si el usuario está logueado
+  const { user } = useContext(AuthContext);
 
-  // Cargar las sucursales al iniciar
+  // Cargar las sucursales cuando el usuario está logueado o cuando cambia la posición
   useEffect(() => {
     const loadBranches = async () => {
       try {
-        // Solo cargar sucursales si hay un token (usuario logueado)
-        const token = localStorage.getItem('auth_token');
-        if (!token) {
+        // Solo cargar sucursales si el usuario está logueado
+        if (!user) {
           setLoading(false);
           return;
         }
@@ -64,8 +67,16 @@ export const LocationProvider = ({ children }) => {
       }
     };
     
+    // Si no hay usuario, limpiar las sucursales y establecer loading en false
+    if (!user) {
+      setBranches([]);
+      setSelectedBranch(null);
+      setLoading(false);
+      return;
+    }
+    
     loadBranches();
-  }, [position, locationError]);
+  }, [user, position, locationError]);
 
   // Valor del contexto
   const contextValue = {
