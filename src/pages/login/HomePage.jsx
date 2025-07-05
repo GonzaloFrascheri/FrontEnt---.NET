@@ -68,11 +68,8 @@ export default function HomePage() {
           displayProduct: product
         }));
 
-        // Solo actualizar las promociones si hay resultados
-        // o si no hay promociones previas
-        if (processedPromotions.length > 0 || promotions.length === 0) {
-          setPromotions(processedPromotions);
-        }
+        // Siempre actualizar las promociones cuando cambia la ubicación
+        setPromotions(processedPromotions);
         
         // Desactivar estado de carga
         setLoadingPromotions(false);
