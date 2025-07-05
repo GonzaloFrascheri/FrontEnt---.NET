@@ -1,5 +1,5 @@
 // src/pages/login/HomePage.jsx
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import {
   Container,
   Row,
@@ -28,6 +28,8 @@ export default function HomePage() {
   const [allPromotions, setAllPromotions] = useState([]);
   const [loadingPromotions, setLoadingPromotions] = useState(false);
   const [loadingTenantPromotions, setLoadingTenantPromotions] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const carouselRef = useRef(null);
   
   const tenantStyles = {
     primaryColor: tenantUIConfig?.primaryColor || '#1976d2',
@@ -93,6 +95,9 @@ export default function HomePage() {
     if (selectedBranch) {
       // Activar estado de carga
       setLoadingPromotions(true);
+      
+      // Resetear el carrusel a la primera posición
+      setActiveIndex(0);
       
       getBranchPromotions(selectedBranch.id).then(data => {
         // Procesar promociones de branch (isTenantPromotion = false)
@@ -214,6 +219,9 @@ export default function HomePage() {
           controls={false}
           indicators
           className="promo-carousel"
+          activeIndex={activeIndex}
+          onSelect={(index) => setActiveIndex(index)}
+          ref={carouselRef}
         >
           {allPromotions.map((promo, idx) => (
             <Carousel.Item key={`${promo.id}-${idx}`}>
