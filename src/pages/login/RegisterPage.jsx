@@ -47,7 +47,10 @@ export default function RegisterPage() {
         localStorage.setItem('auth_token', res.data.token);
         setUser?.({ token: res.data.token, email: form.email, name: form.name });
         setSuccess('¡Registro exitoso! Redirigiendo...');
-        setTimeout(() => navigate('/', { replace: true }), 1200);
+        setTimeout(() => {
+          navigate('/', { replace: true })
+          window.location.reload();
+        }, 1200);
       } else {
         setSuccess('¡Registro exitoso! Ahora puedes iniciar sesión.');
         setTimeout(() => navigate('/login', { replace: true }), 2000);

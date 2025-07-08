@@ -34,6 +34,7 @@ export default function ValidateMagicLinkPage() {
         await loginWithToken({ token: authToken });
 
         navigate('/', { replace: true });
+        window.location.reload();
 
       } catch (error) {
         console.error('Error validando magic link:', error);
